@@ -1,4 +1,4 @@
-package com.diego.geographicapi;
+package com.diego.geographicapi.repository;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
@@ -20,7 +20,7 @@ import com.diego.geographicapi.repository.CountryRepository;
 @RunWith(SpringRunner.class)
 @SpringBootTest
 @ActiveProfiles("test")
-public class GeographicApiApplicationTests {
+public class CountryRepositoryTests {
 	//TODO: Separar testes de repositório corretamente
 	
 	@Autowired
