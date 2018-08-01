@@ -20,7 +20,7 @@ import com.diego.geographicapi.repository.CountryRepository;
 @RunWith(SpringRunner.class)
 @SpringBootTest
 @ActiveProfiles("test")
-public class CountryRepositoryTests {
+public class CountryRepositoryTest {
 	//TODO: Separar testes de repositório corretamente
 	
 	@Autowired

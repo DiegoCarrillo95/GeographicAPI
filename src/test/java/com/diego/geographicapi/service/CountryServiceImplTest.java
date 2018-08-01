@@ -32,7 +32,6 @@ public class CountryServiceImplTest {
 
 	@InjectMocks
 	private CountryServiceImpl countryService;
-	// Teste da implementação ou da interface?
 
 	@Mock
 	private CountryRepository countryRepositoryMock;

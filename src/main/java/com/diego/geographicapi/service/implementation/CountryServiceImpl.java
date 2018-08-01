@@ -1,5 +1,7 @@
 package com.diego.geographicapi.service.implementation;
 
+import java.util.List;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -30,6 +32,11 @@ public class CountryServiceImpl implements CountryService {
 	}
 
 	@Override
+	public List<Country> getAllCountries() {
+		return countryRepository.findAll();
+	}
+	
+	@Override
 	public void updateCountry(Country country) {
 		if(countryRepository.findOne(country.getId()) == null) {
 			throw new ResourceNotFoundException("Country", "Id", country.getId());
@@ -49,5 +56,6 @@ public class CountryServiceImpl implements CountryService {
 		countryRepository.delete(countryToDelete);
 
 	}
+
 
 }
