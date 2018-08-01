@@ -2,6 +2,10 @@ package com.diego.geographicapi.service;
 
 import static org.junit.Assert.*;
 import static org.mockito.Mockito.when;
+
+import java.util.ArrayList;
+import java.util.List;
+
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.times;
 
@@ -34,6 +38,8 @@ public class CountryServiceImplTest {
 	private CountryRepository countryRepositoryMock;
 
 	private Country country;
+	
+	final long id = 1;
 
 	@Before
 	public void setup() {
@@ -46,7 +52,6 @@ public class CountryServiceImplTest {
 
 	@Test
 	public void shouldReturnCountryWithIdWhenNewCountryisInserted() {
-		long id = 1;
 		Country countryReturned = new Country();
 		countryReturned.setId(id);
 		countryReturned.setName(country.getName());
@@ -58,10 +63,26 @@ public class CountryServiceImplTest {
 
 		assertEquals(id, returnedId);
 	}
+	
+	@Test
+	public void shouldReturnAllCountriesWhenGetAllCountriesMethodIsCalled() {
+		country.setId(id);
+		Country country2 = new Country();
+		country2.setId((long)2);
+		country2.setName("Mexico");
+		country2.setCountryCode("MX");
+		List<Country> countryList = new ArrayList<>();
+		countryList.add(country);
+		countryList.add(country2);
+		when(countryRepositoryMock.findAll()).thenReturn(countryList);
+		
+		List<Country> listReturned = countryService.getAllCountries();
+		
+		assertEquals(countryList, listReturned);
+	}
 
 	@Test
 	public void shouldReturnCountryWhenCountryIdIsGiven() {
-		long id = 1;
 		country.setId(id);
 		when(countryRepositoryMock.findOne(id)).thenReturn(country);
 
@@ -72,7 +93,6 @@ public class CountryServiceImplTest {
 
 	@Test
 	public void shouldReturnResourceNotFoundExceptionWhenInexistingCountryIdIsGiven() {
-		long id = 1;
 		when(countryRepositoryMock.findOne(id)).thenReturn(null);
 
 		try {
@@ -89,7 +109,6 @@ public class CountryServiceImplTest {
 
 	@Test
 	public void shouldUpdateCountryWhenExistingCountryIsUpdated() {
-		long id = 1;
 		country.setId(id);
 		Country updatedCountry = new Country();
 		updatedCountry.setId(country.getId());
@@ -105,7 +124,6 @@ public class CountryServiceImplTest {
 
 	@Test
 	public void shouldReturnExceptionWhenUnexistingCountryIsUpdated() {
-		long id = 1;
 		country.setId(id);
 		when(countryRepositoryMock.findOne(country.getId())).thenReturn(null);
 
@@ -123,7 +141,6 @@ public class CountryServiceImplTest {
 	
 	@Test
 	public void shouldDeleteCountryWhenExistingCountryIsDeleted() {
-		long id = 1;
 		country.setId(id);
 		when(countryRepositoryMock.findOne(country.getId())).thenReturn(country);
 
@@ -134,7 +151,6 @@ public class CountryServiceImplTest {
 
 	@Test
 	public void shouldReturnExceptionWhenUnexistingCountryIsDeleted() {
-		long id = 1;
 		country.setId(id);
 		when(countryRepositoryMock.findOne(country.getId())).thenReturn(null);
 
