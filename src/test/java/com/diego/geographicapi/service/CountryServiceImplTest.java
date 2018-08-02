@@ -9,25 +9,20 @@ import java.util.List;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.times;
 
-
 import org.junit.Before;
+import org.junit.Rule;
 import org.junit.Test;
+import org.junit.rules.ExpectedException;
 import org.junit.runner.RunWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
-import org.mockito.MockitoAnnotations;
-import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.test.context.ActiveProfiles;
-import org.springframework.test.context.junit4.SpringRunner;
-
+import org.mockito.runners.MockitoJUnitRunner;
 import com.diego.geographicapi.exceptions.ResourceNotFoundException;
 import com.diego.geographicapi.model.Country;
 import com.diego.geographicapi.repository.CountryRepository;
 import com.diego.geographicapi.service.implementation.CountryServiceImpl;
 
-@RunWith(SpringRunner.class)
-@SpringBootTest
-@ActiveProfiles("test")
+@RunWith(MockitoJUnitRunner.class)
 public class CountryServiceImplTest {
 
 	@InjectMocks
@@ -37,13 +32,14 @@ public class CountryServiceImplTest {
 	private CountryRepository countryRepositoryMock;
 
 	private Country country;
-	
-	final long id = 1;
+
+	private final long id = 1;
+
+	@Rule
+	public ExpectedException thrown = ExpectedException.none();
 
 	@Before
 	public void setup() {
-		MockitoAnnotations.initMocks(this);
-
 		country = new Country();
 		country.setName("Brazil");
 		country.setCountryCode("BR");
@@ -62,21 +58,21 @@ public class CountryServiceImplTest {
 
 		assertEquals(id, returnedId);
 	}
-	
+
 	@Test
 	public void shouldReturnAllCountriesWhenGetAllCountriesMethodIsCalled() {
 		country.setId(id);
 		Country country2 = new Country();
-		country2.setId((long)2);
+		country2.setId((long) 2);
 		country2.setName("Mexico");
 		country2.setCountryCode("MX");
 		List<Country> countryList = new ArrayList<>();
 		countryList.add(country);
 		countryList.add(country2);
 		when(countryRepositoryMock.findAll()).thenReturn(countryList);
-		
+
 		List<Country> listReturned = countryService.getAllCountries();
-		
+
 		assertEquals(countryList, listReturned);
 	}
 
@@ -94,16 +90,9 @@ public class CountryServiceImplTest {
 	public void shouldReturnResourceNotFoundExceptionWhenInexistingCountryIdIsGiven() {
 		when(countryRepositoryMock.findOne(id)).thenReturn(null);
 
-		try {
-			countryService.getCountry(id);
-
-			fail();
-
-		} catch (ResourceNotFoundException e) {
-			assertEquals("Country", e.getResourceName());
-			assertEquals("Id", e.getFieldName());
-			assertEquals(id, e.getFieldValue());
-		}
+		thrown.expect(ResourceNotFoundException.class);
+		thrown.expectMessage(String.format("Country not found with Id : '%s'", id));
+		countryService.getCountry(id);
 	}
 
 	@Test
@@ -126,18 +115,11 @@ public class CountryServiceImplTest {
 		country.setId(id);
 		when(countryRepositoryMock.findOne(country.getId())).thenReturn(null);
 
-		try {
-			countryService.updateCountry(country);
-
-			fail();
-			
-		} catch (ResourceNotFoundException e) {
-			assertEquals("Country", e.getResourceName());
-			assertEquals("Id", e.getFieldName());
-			assertEquals(id, e.getFieldValue());	
-		}
+		thrown.expect(ResourceNotFoundException.class);
+		thrown.expectMessage(String.format("Country not found with Id : '%s'", id));
+		countryService.updateCountry(country);
 	}
-	
+
 	@Test
 	public void shouldDeleteCountryWhenExistingCountryIsDeleted() {
 		country.setId(id);
@@ -145,7 +127,8 @@ public class CountryServiceImplTest {
 
 		countryService.deleteCountry(country.getId());
 
-		verify(countryRepositoryMock, times(1)).delete(country);;
+		verify(countryRepositoryMock, times(1)).delete(country);
+
 	}
 
 	@Test
@@ -153,16 +136,8 @@ public class CountryServiceImplTest {
 		country.setId(id);
 		when(countryRepositoryMock.findOne(country.getId())).thenReturn(null);
 
-		try {
-			countryService.deleteCountry(country.getId());
-
-			fail();
-			
-		} catch (ResourceNotFoundException e) {
-			assertEquals("Country", e.getResourceName());
-			assertEquals("Id", e.getFieldName());
-			assertEquals(id, e.getFieldValue());	
-		}
+		thrown.expect(ResourceNotFoundException.class);
+		thrown.expectMessage(String.format("Country not found with Id : '%s'", id));
+		countryService.deleteCountry(country.getId());
 	}
-
 }

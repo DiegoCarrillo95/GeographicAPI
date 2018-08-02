@@ -1,7 +1,6 @@
 package com.diego.geographicapi.facade;
 
 import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.fail;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.when;
 import static org.mockito.Mockito.verify;
@@ -10,22 +9,20 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.junit.Before;
+import org.junit.Rule;
 import org.junit.Test;
+import org.junit.rules.ExpectedException;
 import org.junit.runner.RunWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
-import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.test.context.ActiveProfiles;
-import org.springframework.test.context.junit4.SpringRunner;
+import org.mockito.runners.MockitoJUnitRunner;
 
 import com.diego.geographicapi.dto.CountryDto;
 import com.diego.geographicapi.exceptions.ResourceNotFoundException;
 import com.diego.geographicapi.model.Country;
 import com.diego.geographicapi.service.CountryService;
 
-@RunWith(SpringRunner.class)
-@SpringBootTest
-@ActiveProfiles("test")
+@RunWith(MockitoJUnitRunner.class)
 public class CountryFacadeTest {
 
 	@InjectMocks
@@ -44,6 +41,9 @@ public class CountryFacadeTest {
 	CountryDto countryDto1 = new CountryDto();
 	CountryDto countryDto2 = new CountryDto();
 	List<CountryDto> countryDtoList = new ArrayList<>();
+
+	@Rule
+	public ExpectedException thrown = ExpectedException.none();
 
 	@Before
 	public void init() {
@@ -64,6 +64,23 @@ public class CountryFacadeTest {
 		countryDto2.setCountryCode("MX");
 		countryDtoList.add(countryDto1);
 		countryDtoList.add(countryDto2);
+	}
+
+	@Test
+	public void shouldReturnCountryDtoWithIdWhenInsertCountryMethodIsCalledWithNewCountryDto() {
+		Country insertedCountry = new Country();
+		insertedCountry.setName("Brazil");
+		insertedCountry.setCountryCode("BR");
+		CountryDto insertedCountryDto = new CountryDto();
+		insertedCountryDto.setName(insertedCountry.getName());
+		insertedCountryDto.setCountryCode(insertedCountry.getCountryCode());
+		when(countryService.insertCountry(insertedCountry)).thenReturn(id1);
+
+		CountryDto returnedCountryDto = countryFacade.insertCountry(insertedCountryDto);
+
+		assertEquals((Long) id1, returnedCountryDto.getId());
+		assertEquals(insertedCountry.getName(), returnedCountryDto.getName());
+		assertEquals(insertedCountry.getCountryCode(), returnedCountryDto.getCountryCode());
 	}
 
 	@Test
@@ -89,17 +106,9 @@ public class CountryFacadeTest {
 		long id3 = 3;
 		when(countryService.getCountry(id3)).thenThrow(new ResourceNotFoundException("Country", "Id", id3));
 
-		try {
-			countryFacade.getCountry(id3);
-
-			fail();
-
-		} catch (ResourceNotFoundException e) {
-			assertEquals("Country", e.getResourceName());
-			assertEquals("Id", e.getFieldName());
-			assertEquals(id3, e.getFieldValue());
-		}
-
+		thrown.expect(ResourceNotFoundException.class);
+		thrown.expectMessage(String.format("Country not found with Id : '%s'", id3));
+		countryFacade.getCountry(id3);
 	}
 
 	@Test

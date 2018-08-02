@@ -9,14 +9,13 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.times;
 
 import org.junit.Before;
+import org.junit.Rule;
 import org.junit.Test;
+import org.junit.rules.ExpectedException;
 import org.junit.runner.RunWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
-import org.mockito.MockitoAnnotations;
-import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.test.context.ActiveProfiles;
-import org.springframework.test.context.junit4.SpringRunner;
+import org.mockito.runners.MockitoJUnitRunner;
 
 import com.diego.geographicapi.exceptions.ResourceNotFoundException;
 import com.diego.geographicapi.model.City;
@@ -25,9 +24,7 @@ import com.diego.geographicapi.model.State;
 import com.diego.geographicapi.repository.CountryRepository;
 import com.diego.geographicapi.service.implementation.CityServiceImpl;
 
-@RunWith(SpringRunner.class)
-@SpringBootTest
-@ActiveProfiles("test")
+@RunWith(MockitoJUnitRunner.class)
 public class CityServiceImplTest {
 
 	@InjectMocks
@@ -39,21 +36,25 @@ public class CityServiceImplTest {
 	private Country country;
 	private State state;
 	private City city;
-	private long cityId = 3;
+
+	private final long countryId = 1;
+	private final long stateId = 2;
+	private final long cityId = 3;
+
+	@Rule
+	public ExpectedException thrown = ExpectedException.none();
 
 	@Before
 	public void setup() {
-		MockitoAnnotations.initMocks(this);
-
 		country = new Country();
 		country.setName("Brazil");
 		country.setCountryCode("BR");
-		country.setId((long) 1);
+		country.setId(countryId);
 
 		state = new State();
 		state.setName("Paraná");
 		state.setStateCode("PR");
-		state.setId((long) 2);
+		state.setId(stateId);
 
 		country.getStates().add(state);
 
@@ -92,17 +93,9 @@ public class CityServiceImplTest {
 
 		when(countryRepositoryMock.findOne(country.getId())).thenReturn(null);
 
-		try {
-
-			cityService.insertCity(city, state.getId(), country.getId());
-
-			fail();
-
-		} catch (ResourceNotFoundException e) {
-			assertEquals("Country", e.getResourceName());
-			assertEquals("Id", e.getFieldName());
-			assertEquals(country.getId(), e.getFieldValue());
-		}
+		thrown.expect(ResourceNotFoundException.class);
+		thrown.expectMessage(String.format("Country not found with Id : '%s'", countryId));
+		cityService.insertCity(city, state.getId(), country.getId());
 	}
 
 	@Test
@@ -111,18 +104,9 @@ public class CityServiceImplTest {
 		country.setStates(new ArrayList<>());
 		when(countryRepositoryMock.findOne(country.getId())).thenReturn(country);
 
-		try {
-
-			cityService.insertCity(city, state.getId(), country.getId());
-
-			fail();
-
-		} catch (ResourceNotFoundException e) {
-			assertEquals("State", e.getResourceName());
-			assertEquals("Id", e.getFieldName());
-			assertEquals(state.getId(), e.getFieldValue());
-		}
-
+		thrown.expect(ResourceNotFoundException.class);
+		thrown.expectMessage(String.format("State not found with Id : '%s'", stateId));
+		cityService.insertCity(city, state.getId(), country.getId());
 	}
 
 	@Test
@@ -142,17 +126,9 @@ public class CityServiceImplTest {
 		state.getCities().add(city);
 		when(countryRepositoryMock.findOne(country.getId())).thenReturn(null);
 
-		try {
-
-			cityService.getCity(city.getId(), state.getId(), country.getId());
-
-			fail();
-
-		} catch (ResourceNotFoundException e) {
-			assertEquals("Country", e.getResourceName());
-			assertEquals("Id", e.getFieldName());
-			assertEquals(country.getId(), e.getFieldValue());
-		}
+		thrown.expect(ResourceNotFoundException.class);
+		thrown.expectMessage(String.format("Country not found with Id : '%s'", countryId));
+		cityService.getCity(city.getId(), state.getId(), country.getId());
 	}
 
 	@Test
@@ -162,17 +138,9 @@ public class CityServiceImplTest {
 		country.setStates(new ArrayList<>());
 		when(countryRepositoryMock.findOne(country.getId())).thenReturn(country);
 
-		try {
-
-			cityService.getCity(city.getId(), state.getId(), country.getId());
-
-			fail();
-
-		} catch (ResourceNotFoundException e) {
-			assertEquals("State", e.getResourceName());
-			assertEquals("Id", e.getFieldName());
-			assertEquals(state.getId(), e.getFieldValue());
-		}
+		thrown.expect(ResourceNotFoundException.class);
+		thrown.expectMessage(String.format("State not found with Id : '%s'", stateId));
+		cityService.getCity(city.getId(), state.getId(), country.getId());
 	}
 
 	@Test
@@ -180,17 +148,10 @@ public class CityServiceImplTest {
 		city.setId(cityId);
 		when(countryRepositoryMock.findOne(country.getId())).thenReturn(country);
 
-		try {
+		thrown.expect(ResourceNotFoundException.class);
+		thrown.expectMessage(String.format("City not found with Id : '%s'", cityId));
+		cityService.getCity(city.getId(), state.getId(), country.getId());
 
-			cityService.getCity(city.getId(), state.getId(), country.getId());
-
-			fail();
-
-		} catch (ResourceNotFoundException e) {
-			assertEquals("City", e.getResourceName());
-			assertEquals("Id", e.getFieldName());
-			assertEquals(city.getId(), e.getFieldValue());
-		}
 	}
 
 	@Test
@@ -217,17 +178,9 @@ public class CityServiceImplTest {
 		updatedCity.setCityCode("PGR");
 		when(countryRepositoryMock.findOne(country.getId())).thenReturn(null);
 
-		try {
-
-			cityService.updateCity(updatedCity, state.getId(), country.getId());
-
-			fail();
-
-		} catch (ResourceNotFoundException e) {
-			assertEquals("Country", e.getResourceName());
-			assertEquals("Id", e.getFieldName());
-			assertEquals(country.getId(), e.getFieldValue());
-		}
+		thrown.expect(ResourceNotFoundException.class);
+		thrown.expectMessage(String.format("Country not found with Id : '%s'", countryId));
+		cityService.updateCity(updatedCity, state.getId(), country.getId());
 	}
 
 	@Test
@@ -238,17 +191,9 @@ public class CityServiceImplTest {
 		country.setStates(new ArrayList<>());
 		when(countryRepositoryMock.findOne(country.getId())).thenReturn(country);
 
-		try {
-
-			cityService.updateCity(updatedCity, state.getId(), country.getId());
-
-			fail();
-
-		} catch (ResourceNotFoundException e) {
-			assertEquals("State", e.getResourceName());
-			assertEquals("Id", e.getFieldName());
-			assertEquals(state.getId(), e.getFieldValue());
-		}
+		thrown.expect(ResourceNotFoundException.class);
+		thrown.expectMessage(String.format("State not found with Id : '%s'", stateId));
+		cityService.updateCity(updatedCity, state.getId(), country.getId());
 	}
 
 	@Test
@@ -258,17 +203,9 @@ public class CityServiceImplTest {
 		updatedCity.setCityCode("PGR");
 		when(countryRepositoryMock.findOne(country.getId())).thenReturn(country);
 
-		try {
-
-			cityService.updateCity(updatedCity, state.getId(), country.getId());
-
-			fail();
-
-		} catch (ResourceNotFoundException e) {
-			assertEquals("City", e.getResourceName());
-			assertEquals("Id", e.getFieldName());
-			assertEquals(city.getId(), e.getFieldValue());
-		}
+		thrown.expect(ResourceNotFoundException.class);
+		thrown.expectMessage(String.format("City not found with Id : '%s'", city.getId()));
+		cityService.updateCity(updatedCity, state.getId(), country.getId());
 	}
 
 	@Test
@@ -297,17 +234,9 @@ public class CityServiceImplTest {
 		state.getCities().add(city);
 		when(countryRepositoryMock.findOne(country.getId())).thenReturn(null);
 
-		try {
-
-			cityService.deleteCity(city.getId(), state.getId(), country.getId());
-
-			fail();
-
-		} catch (ResourceNotFoundException e) {
-			assertEquals("Country", e.getResourceName());
-			assertEquals("Id", e.getFieldName());
-			assertEquals(country.getId(), e.getFieldValue());
-		}
+		thrown.expect(ResourceNotFoundException.class);
+		thrown.expectMessage(String.format("Country not found with Id : '%s'", countryId));
+		cityService.deleteCity(city.getId(), state.getId(), country.getId());
 	}
 
 	@Test
@@ -317,17 +246,9 @@ public class CityServiceImplTest {
 		country.setStates(new ArrayList<>());
 		when(countryRepositoryMock.findOne(country.getId())).thenReturn(country);
 
-		try {
-
-			cityService.deleteCity(city.getId(), state.getId(), country.getId());
-
-			fail();
-
-		} catch (ResourceNotFoundException e) {
-			assertEquals("State", e.getResourceName());
-			assertEquals("Id", e.getFieldName());
-			assertEquals(state.getId(), e.getFieldValue());
-		}
+		thrown.expect(ResourceNotFoundException.class);
+		thrown.expectMessage(String.format("State not found with Id : '%s'", stateId));
+		cityService.deleteCity(city.getId(), state.getId(), country.getId());
 	}
 
 	@Test
@@ -335,17 +256,9 @@ public class CityServiceImplTest {
 		city.setId(cityId);
 		when(countryRepositoryMock.findOne(country.getId())).thenReturn(country);
 
-		try {
-
-			cityService.deleteCity(city.getId(), state.getId(), country.getId());
-
-			fail();
-
-		} catch (ResourceNotFoundException e) {
-			assertEquals("City", e.getResourceName());
-			assertEquals("Id", e.getFieldName());
-			assertEquals(city.getId(), e.getFieldValue());
-		}
+		thrown.expect(ResourceNotFoundException.class);
+		thrown.expectMessage(String.format("City not found with Id : '%s'", cityId));
+		cityService.deleteCity(city.getId(), state.getId(), country.getId());
 	}
 
 }
