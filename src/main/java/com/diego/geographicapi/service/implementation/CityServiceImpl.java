@@ -2,7 +2,7 @@ package com.diego.geographicapi.service.implementation;
 
 import org.springframework.stereotype.Service;
 
-import com.diego.geographicapi.exceptions.ResourceNotFoundException;
+import com.diego.geographicapi.exceptions.EntityNotFoundException;
 import com.diego.geographicapi.model.City;
 import com.diego.geographicapi.model.Country;
 import com.diego.geographicapi.model.State;
@@ -22,12 +22,12 @@ public class CityServiceImpl implements CityService {
 	public Long insertCity(City city, Long stateId, Long countryId) {
 		Country country = countryRepository.findOne(countryId);
 		if (country == null) {
-			throw new ResourceNotFoundException("Country", "Id", countryId);
+			throw new EntityNotFoundException("Country", "Id", countryId);
 		}
 
 		State state = findStateById(stateId, country);
 		if (state == null) {
-			throw new ResourceNotFoundException("State", "Id", stateId);
+			throw new EntityNotFoundException("State", "Id", stateId);
 		}
 
 		state.getCities().add(city);
@@ -44,17 +44,17 @@ public class CityServiceImpl implements CityService {
 	public City getCity(Long cityId, Long stateId, Long countryId) {
 		Country country = countryRepository.findOne(countryId);
 		if (country == null) {
-			throw new ResourceNotFoundException("Country", "Id", countryId);
+			throw new EntityNotFoundException("Country", "Id", countryId);
 		}
 
 		State state = findStateById(stateId, country);
 		if (state == null) {
-			throw new ResourceNotFoundException("State", "Id", stateId);
+			throw new EntityNotFoundException("State", "Id", stateId);
 		}
 		
 		City city = findCityById(cityId, state);
 		if (city == null) {
-			throw new ResourceNotFoundException("City", "Id", cityId);
+			throw new EntityNotFoundException("City", "Id", cityId);
 		}
 		
 		return city;
@@ -65,12 +65,12 @@ public class CityServiceImpl implements CityService {
 	public void updateCity(City city, Long stateId, Long countryId) {
 		Country country = countryRepository.findOne(countryId);
 		if (country == null) {
-			throw new ResourceNotFoundException("Country", "Id", countryId);
+			throw new EntityNotFoundException("Country", "Id", countryId);
 		}
 
 		State state = findStateById(stateId, country);
 		if (state == null) {
-			throw new ResourceNotFoundException("State", "Id", stateId);
+			throw new EntityNotFoundException("State", "Id", stateId);
 		}
 		
 		for (int i = 0; i < state.getCities().size(); i++) {
@@ -84,19 +84,19 @@ public class CityServiceImpl implements CityService {
 			}
 		}
 		
-		throw new ResourceNotFoundException("City", "Id", city.getId());
+		throw new EntityNotFoundException("City", "Id", city.getId());
 	}
 
 	@Override
 	public void deleteCity(Long cityId, Long stateId, Long countryId) {
 		Country country = countryRepository.findOne(countryId);
 		if (country == null) {
-			throw new ResourceNotFoundException("Country", "Id", countryId);
+			throw new EntityNotFoundException("Country", "Id", countryId);
 		}
 
 		State state = findStateById(stateId, country);
 		if (state == null) {
-			throw new ResourceNotFoundException("State", "Id", stateId);
+			throw new EntityNotFoundException("State", "Id", stateId);
 		}
 		
 		for (int i = 0; i < state.getCities().size(); i++) {
@@ -108,7 +108,7 @@ public class CityServiceImpl implements CityService {
 			}
 		}
 		
-		throw new ResourceNotFoundException("City", "Id", cityId);
+		throw new EntityNotFoundException("City", "Id", cityId);
 	}
 
 	private State findStateById(Long stateId, Country country) {

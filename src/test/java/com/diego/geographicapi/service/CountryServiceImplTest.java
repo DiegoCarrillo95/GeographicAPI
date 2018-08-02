@@ -17,7 +17,7 @@ import org.junit.runner.RunWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
-import com.diego.geographicapi.exceptions.ResourceNotFoundException;
+import com.diego.geographicapi.exceptions.EntityNotFoundException;
 import com.diego.geographicapi.model.Country;
 import com.diego.geographicapi.repository.CountryRepository;
 import com.diego.geographicapi.service.implementation.CountryServiceImpl;
@@ -90,7 +90,7 @@ public class CountryServiceImplTest {
 	public void shouldReturnResourceNotFoundExceptionWhenInexistingCountryIdIsGiven() {
 		when(countryRepositoryMock.findOne(id)).thenReturn(null);
 
-		thrown.expect(ResourceNotFoundException.class);
+		thrown.expect(EntityNotFoundException.class);
 		thrown.expectMessage(String.format("Country not found with Id : '%s'", id));
 		countryService.getCountry(id);
 	}
@@ -115,7 +115,7 @@ public class CountryServiceImplTest {
 		country.setId(id);
 		when(countryRepositoryMock.findOne(country.getId())).thenReturn(null);
 
-		thrown.expect(ResourceNotFoundException.class);
+		thrown.expect(EntityNotFoundException.class);
 		thrown.expectMessage(String.format("Country not found with Id : '%s'", id));
 		countryService.updateCountry(country);
 	}
@@ -136,7 +136,7 @@ public class CountryServiceImplTest {
 		country.setId(id);
 		when(countryRepositoryMock.findOne(country.getId())).thenReturn(null);
 
-		thrown.expect(ResourceNotFoundException.class);
+		thrown.expect(EntityNotFoundException.class);
 		thrown.expectMessage(String.format("Country not found with Id : '%s'", id));
 		countryService.deleteCountry(country.getId());
 	}

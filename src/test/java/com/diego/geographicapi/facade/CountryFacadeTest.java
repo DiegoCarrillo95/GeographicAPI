@@ -18,7 +18,7 @@ import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 
 import com.diego.geographicapi.dto.CountryDto;
-import com.diego.geographicapi.exceptions.ResourceNotFoundException;
+import com.diego.geographicapi.exceptions.EntityNotFoundException;
 import com.diego.geographicapi.model.Country;
 import com.diego.geographicapi.service.CountryService;
 
@@ -104,9 +104,9 @@ public class CountryFacadeTest {
 	@Test
 	public void shouldReturnCountryExceptionWhenGetCountryIsCalledWithUnexistingId() {
 		long id3 = 3;
-		when(countryService.getCountry(id3)).thenThrow(new ResourceNotFoundException("Country", "Id", id3));
+		when(countryService.getCountry(id3)).thenThrow(new EntityNotFoundException("Country", "Id", id3));
 
-		thrown.expect(ResourceNotFoundException.class);
+		thrown.expect(EntityNotFoundException.class);
 		thrown.expectMessage(String.format("Country not found with Id : '%s'", id3));
 		countryFacade.getCountry(id3);
 	}

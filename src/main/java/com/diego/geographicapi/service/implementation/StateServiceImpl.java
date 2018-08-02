@@ -2,7 +2,7 @@ package com.diego.geographicapi.service.implementation;
 
 import org.springframework.stereotype.Service;
 
-import com.diego.geographicapi.exceptions.ResourceNotFoundException;
+import com.diego.geographicapi.exceptions.EntityNotFoundException;
 import com.diego.geographicapi.model.Country;
 import com.diego.geographicapi.model.State;
 import com.diego.geographicapi.repository.CountryRepository;
@@ -22,7 +22,7 @@ public class StateServiceImpl implements StateService {
 		Country country = countryRepository.findOne(countryId);
 
 		if (country == null) {
-			throw new ResourceNotFoundException("Country", "Id", countryId);
+			throw new EntityNotFoundException("Country", "Id", countryId);
 		}
 
 		country.getStates().add(state);
@@ -36,7 +36,7 @@ public class StateServiceImpl implements StateService {
 		Country country = countryRepository.findOne(countryId);
 
 		if (country == null) {
-			throw new ResourceNotFoundException("Country", "Id", countryId);
+			throw new EntityNotFoundException("Country", "Id", countryId);
 		}
 
 		for (State state : country.getStates()) {
@@ -45,7 +45,7 @@ public class StateServiceImpl implements StateService {
 			}
 		}
 
-		throw new ResourceNotFoundException("State", "Id", stateId);
+		throw new EntityNotFoundException("State", "Id", stateId);
 	}
 
 	@Override
@@ -53,7 +53,7 @@ public class StateServiceImpl implements StateService {
 		Country country = countryRepository.findOne(countryId);
 
 		if (country == null) {
-			throw new ResourceNotFoundException("Country", "Id", countryId);
+			throw new EntityNotFoundException("Country", "Id", countryId);
 		}
 		
 		for (int i = 0; i < country.getStates().size(); i++) {
@@ -68,7 +68,7 @@ public class StateServiceImpl implements StateService {
 			}
 		}
 		
-		throw new ResourceNotFoundException("State", "Id", state.getId());
+		throw new EntityNotFoundException("State", "Id", state.getId());
 	}
 
 	@Override
@@ -76,7 +76,7 @@ public class StateServiceImpl implements StateService {
 		Country country = countryRepository.findOne(countryId);
 
 		if (country == null) {
-			throw new ResourceNotFoundException("Country", "Id", countryId);
+			throw new EntityNotFoundException("Country", "Id", countryId);
 		}
 
 		for (int i = 0; i < country.getStates().size(); i++) {
@@ -90,7 +90,7 @@ public class StateServiceImpl implements StateService {
 			}
 		}
 
-		throw new ResourceNotFoundException("State", "Id", stateId);
+		throw new EntityNotFoundException("State", "Id", stateId);
 
 	}
 

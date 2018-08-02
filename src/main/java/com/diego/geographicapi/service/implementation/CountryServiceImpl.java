@@ -5,7 +5,7 @@ import java.util.List;
 import org.springframework.beans.BeanUtils;
 import org.springframework.stereotype.Service;
 
-import com.diego.geographicapi.exceptions.ResourceNotFoundException;
+import com.diego.geographicapi.exceptions.EntityNotFoundException;
 import com.diego.geographicapi.model.Country;
 import com.diego.geographicapi.repository.CountryRepository;
 import com.diego.geographicapi.service.CountryService;
@@ -28,7 +28,7 @@ public class CountryServiceImpl implements CountryService {
 	public Country getCountry(Long id) {
 		Country countryReturned = countryRepository.findOne(id);
 		if (countryReturned == null) {
-			throw new ResourceNotFoundException("Country", "Id", id);
+			throw new EntityNotFoundException("Country", "Id", id);
 		}
 		
 		return countryReturned;
@@ -45,7 +45,7 @@ public class CountryServiceImpl implements CountryService {
 		Country curentCountry = countryRepository.findOne(updatedCountry.getId());
 		
 		if(curentCountry == null) {
-			throw new ResourceNotFoundException("Country", "Id", updatedCountry.getId());
+			throw new EntityNotFoundException("Country", "Id", updatedCountry.getId());
 		}
 		
 		BeanUtils.copyProperties(updatedCountry, curentCountry, "id");
@@ -58,7 +58,7 @@ public class CountryServiceImpl implements CountryService {
 	public void deleteCountry(Long id) {
 		Country countryToDelete = countryRepository.findOne(id);
 		if(countryToDelete == null) {
-			throw new ResourceNotFoundException("Country", "Id", id);
+			throw new EntityNotFoundException("Country", "Id", id);
 		}
 		
 		countryRepository.delete(countryToDelete);

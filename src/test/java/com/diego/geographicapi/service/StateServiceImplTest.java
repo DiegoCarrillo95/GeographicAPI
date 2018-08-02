@@ -14,7 +14,7 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 
-import com.diego.geographicapi.exceptions.ResourceNotFoundException;
+import com.diego.geographicapi.exceptions.EntityNotFoundException;
 import com.diego.geographicapi.model.Country;
 import com.diego.geographicapi.model.State;
 import com.diego.geographicapi.repository.CountryRepository;
@@ -73,7 +73,7 @@ public class StateServiceImplTest {
 	public void shouldReturnExceptionWhenNewStateisInsertedInUnexistingCountry() {
 		when(countryRepositoryMock.findOne(countryId)).thenReturn(null);
 
-		thrown.expect(ResourceNotFoundException.class);
+		thrown.expect(EntityNotFoundException.class);
 		thrown.expectMessage(String.format("Country not found with Id : '%s'", countryId));
 		stateService.insertState(state, countryId);
 		fail();
@@ -98,7 +98,7 @@ public class StateServiceImplTest {
 		country.getStates().add(state);
 		when(countryRepositoryMock.findOne(countryId)).thenReturn(null);
 
-		thrown.expect(ResourceNotFoundException.class);
+		thrown.expect(EntityNotFoundException.class);
 		thrown.expectMessage(String.format("Country not found with Id : '%s'", countryId));
 		stateService.getState(id, countryId);
 	}
@@ -109,7 +109,7 @@ public class StateServiceImplTest {
 		state.setId(id);
 		when(countryRepositoryMock.findOne(countryId)).thenReturn(country);
 
-		thrown.expect(ResourceNotFoundException.class);
+		thrown.expect(EntityNotFoundException.class);
 		thrown.expectMessage(String.format("State not found with Id : '%s'", id));
 		stateService.getState(state.getId(), countryId);
 
@@ -150,7 +150,7 @@ public class StateServiceImplTest {
 		updatedCountry.setCountryCode(country.getCountryCode());
 		when(countryRepositoryMock.findOne(countryId)).thenReturn(updatedCountry);
 
-		thrown.expect(ResourceNotFoundException.class);
+		thrown.expect(EntityNotFoundException.class);
 		thrown.expectMessage(String.format("State not found with Id : '%s'", id));
 		stateService.updateState(updatedState, countryId);
 
@@ -167,7 +167,7 @@ public class StateServiceImplTest {
 		updatedState.setId(state.getId());
 		when(countryRepositoryMock.findOne(countryId)).thenReturn(null);
 
-		thrown.expect(ResourceNotFoundException.class);
+		thrown.expect(EntityNotFoundException.class);
 		thrown.expectMessage(String.format("Country not found with Id : '%s'", countryId));
 		stateService.updateState(updatedState, countryId);
 
@@ -195,7 +195,7 @@ public class StateServiceImplTest {
 		state.setId(id);
 		when(countryRepositoryMock.findOne(countryId)).thenReturn(null);
 
-		thrown.expect(ResourceNotFoundException.class);
+		thrown.expect(EntityNotFoundException.class);
 		thrown.expectMessage(String.format("Country not found with Id : '%s'", countryId));
 		stateService.deleteState(state.getId(), countryId);
 	}
@@ -206,7 +206,7 @@ public class StateServiceImplTest {
 		state.setId(id);
 		when(countryRepositoryMock.findOne(countryId)).thenReturn(country);
 
-		thrown.expect(ResourceNotFoundException.class);
+		thrown.expect(EntityNotFoundException.class);
 		thrown.expectMessage(String.format("State not found with Id : '%s'", id));
 		stateService.deleteState(state.getId(), countryId);
 	}
