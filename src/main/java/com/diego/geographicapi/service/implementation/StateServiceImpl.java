@@ -1,5 +1,6 @@
 package com.diego.geographicapi.service.implementation;
 
+import org.springframework.beans.BeanUtils;
 import org.springframework.stereotype.Service;
 
 import com.diego.geographicapi.exceptions.EntityNotFoundException;
@@ -18,7 +19,7 @@ public class StateServiceImpl implements StateService {
 	}
 
 	@Override
-	public Long insertState(State state, Long countryId) {
+	public State insertState(State state, Long countryId) {
 		Country country = countryRepository.findOne(countryId);
 
 		if (country == null) {
@@ -28,11 +29,11 @@ public class StateServiceImpl implements StateService {
 		country.getStates().add(state);
 		country = countryRepository.save(country);
 		int stateIndex = country.getStates().indexOf(state);
-		return country.getStates().get(stateIndex).getId();
+		return country.getStates().get(stateIndex);
 	}
 
 	@Override
-	public State getState(Long stateId, Long countryId) {
+	public State getStateById(Long stateId, Long countryId) {
 		Country country = countryRepository.findOne(countryId);
 
 		if (country == null) {
@@ -49,7 +50,7 @@ public class StateServiceImpl implements StateService {
 	}
 
 	@Override
-	public void updateState(State state, Long countryId) {
+	public State updateState(State state, Long countryId) {
 		Country country = countryRepository.findOne(countryId);
 
 		if (country == null) {
@@ -58,13 +59,11 @@ public class StateServiceImpl implements StateService {
 		
 		for (int i = 0; i < country.getStates().size(); i++) {
 			if (country.getStates().get(i).getId() == state.getId()) {
-				country.getStates().get(i).setName(state.getName());
-				country.getStates().get(i).setStateCode(state.getStateCode());
-				country.getStates().get(i).setCities(state.getCities());
+				BeanUtils.copyProperties(state, country.getStates().get(i), "id");
 				
 				countryRepository.save(country);
 				
-				return;
+				return country.getStates().get(i);
 			}
 		}
 		

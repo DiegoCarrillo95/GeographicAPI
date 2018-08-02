@@ -74,7 +74,7 @@ public class CountryFacadeTest {
 		CountryDto insertedCountryDto = new CountryDto();
 		insertedCountryDto.setName(insertedCountry.getName());
 		insertedCountryDto.setCountryCode(insertedCountry.getCountryCode());
-		when(countryService.insertCountry(insertedCountry)).thenReturn(id1);
+		when(countryService.insertCountry(insertedCountry)).thenReturn(country1);
 
 		CountryDto returnedCountryDto = countryFacade.insertCountry(insertedCountryDto);
 
@@ -94,7 +94,7 @@ public class CountryFacadeTest {
 
 	@Test
 	public void shouldReturnCountryDtoWhenGetCountryIsCalledWithExistingId() {
-		when(countryService.getCountry(id1)).thenReturn(country1);
+		when(countryService.getCountryById(id1)).thenReturn(country1);
 
 		CountryDto countryReturned = countryFacade.getCountry(id1);
 
@@ -104,7 +104,7 @@ public class CountryFacadeTest {
 	@Test
 	public void shouldReturnCountryExceptionWhenGetCountryIsCalledWithUnexistingId() {
 		long id3 = 3;
-		when(countryService.getCountry(id3)).thenThrow(new EntityNotFoundException("Country", "Id", id3));
+		when(countryService.getCountryById(id3)).thenThrow(new EntityNotFoundException("Country", "Id", id3));
 
 		thrown.expect(EntityNotFoundException.class);
 		thrown.expectMessage(String.format("Country not found with Id : '%s'", id3));

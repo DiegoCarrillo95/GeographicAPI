@@ -47,16 +47,16 @@ public class CountryServiceImplTest {
 
 	@Test
 	public void shouldReturnCountryWithIdWhenNewCountryisInserted() {
-		Country countryReturned = new Country();
-		countryReturned.setId(id);
-		countryReturned.setName(country.getName());
-		countryReturned.setCountryCode(country.getCountryCode());
-		countryReturned.setStates(country.getStates());
-		when(countryRepositoryMock.save(country)).thenReturn(countryReturned);
+		Country countryToReturn = new Country();
+		countryToReturn.setId(id);
+		countryToReturn.setName(country.getName());
+		countryToReturn.setCountryCode(country.getCountryCode());
+		countryToReturn.setStates(country.getStates());
+		when(countryRepositoryMock.save(country)).thenReturn(countryToReturn);
 
-		long returnedId = countryService.insertCountry(country);
+		Country countryReturned = countryService.insertCountry(country);
 
-		assertEquals(id, returnedId);
+		assertEquals(country, countryReturned);
 	}
 
 	@Test
@@ -81,7 +81,7 @@ public class CountryServiceImplTest {
 		country.setId(id);
 		when(countryRepositoryMock.findOne(id)).thenReturn(country);
 
-		Country countryReturned = countryService.getCountry(id);
+		Country countryReturned = countryService.getCountryById(id);
 
 		assertEquals(country, countryReturned);
 	}
@@ -92,7 +92,7 @@ public class CountryServiceImplTest {
 
 		thrown.expect(EntityNotFoundException.class);
 		thrown.expectMessage(String.format("Country not found with Id : '%s'", id));
-		countryService.getCountry(id);
+		countryService.getCountryById(id);
 	}
 
 	@Test

@@ -20,9 +20,8 @@ public class CountryFacade {
 	}
 	
 	public CountryDto insertCountry(CountryDto countryDto) {
-		long id = countryService.insertCountry(Transformer.countryDtoToModelTransformer(countryDto));
-		countryDto.setId(id);
-
+		Country country = countryService.insertCountry(Transformer.countryDtoToModelTransformer(countryDto));
+		countryDto.setId(country.getId());
 		return countryDto;
 	}
 	
@@ -37,7 +36,7 @@ public class CountryFacade {
 	}
 	
 	public CountryDto getCountry(long id) {
-		return Transformer.countryModelToDtoTransformer(countryService.getCountry(id));
+		return Transformer.countryModelToDtoTransformer(countryService.getCountryById(id));
 	}
 	
 	public void updateCountry(CountryDto countryDto) {

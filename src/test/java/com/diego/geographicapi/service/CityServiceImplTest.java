@@ -66,15 +66,15 @@ public class CityServiceImplTest {
 
 	@Test
 	public void shouldReturnCityIdWhenNewCityIsInsertedInExistingStateAndExistingCountry() {
-		City cityReturnded = new City();
-		cityReturnded.setId(cityId);
-		cityReturnded.setName(city.getName());
-		cityReturnded.setCityCode(city.getCityCode());
+		City cityToReturn = new City();
+		cityToReturn.setId(cityId);
+		cityToReturn.setName(city.getName());
+		cityToReturn.setCityCode(city.getCityCode());
 		State stateWithCity = new State();
 		stateWithCity.setName(state.getName());
 		stateWithCity.setStateCode(state.getStateCode());
 		stateWithCity.setId(state.getId());
-		stateWithCity.getCities().add(cityReturnded);
+		stateWithCity.getCities().add(cityToReturn);
 		Country countryWithState = new Country();
 		countryWithState.setName(country.getName());
 		countryWithState.setCountryCode(country.getCountryCode());
@@ -83,9 +83,9 @@ public class CityServiceImplTest {
 		when(countryRepositoryMock.findOne(country.getId())).thenReturn(country);
 		when(countryRepositoryMock.save(country)).thenReturn(countryWithState);
 
-		long returnedId = cityService.insertCity(city, state.getId(), country.getId());
+		City cityReturned = cityService.insertCity(city, state.getId(), country.getId());
 
-		assertEquals(cityId, returnedId);
+		assertEquals(city, cityReturned);
 	}
 
 	@Test
@@ -115,7 +115,7 @@ public class CityServiceImplTest {
 		state.getCities().add(city);
 		when(countryRepositoryMock.findOne(country.getId())).thenReturn(country);
 
-		City returnedCity = cityService.getCity(city.getId(), state.getId(), country.getId());
+		City returnedCity = cityService.getCityById(city.getId(), state.getId(), country.getId());
 
 		assertEquals(city, returnedCity);
 	}
@@ -128,7 +128,7 @@ public class CityServiceImplTest {
 
 		thrown.expect(EntityNotFoundException.class);
 		thrown.expectMessage(String.format("Country not found with Id : '%s'", countryId));
-		cityService.getCity(city.getId(), state.getId(), country.getId());
+		cityService.getCityById(city.getId(), state.getId(), country.getId());
 	}
 
 	@Test
@@ -140,7 +140,7 @@ public class CityServiceImplTest {
 
 		thrown.expect(EntityNotFoundException.class);
 		thrown.expectMessage(String.format("State not found with Id : '%s'", stateId));
-		cityService.getCity(city.getId(), state.getId(), country.getId());
+		cityService.getCityById(city.getId(), state.getId(), country.getId());
 	}
 
 	@Test
@@ -150,7 +150,7 @@ public class CityServiceImplTest {
 
 		thrown.expect(EntityNotFoundException.class);
 		thrown.expectMessage(String.format("City not found with Id : '%s'", cityId));
-		cityService.getCity(city.getId(), state.getId(), country.getId());
+		cityService.getCityById(city.getId(), state.getId(), country.getId());
 
 	}
 

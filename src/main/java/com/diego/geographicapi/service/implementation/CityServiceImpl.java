@@ -1,5 +1,6 @@
 package com.diego.geographicapi.service.implementation;
 
+import org.springframework.beans.BeanUtils;
 import org.springframework.stereotype.Service;
 
 import com.diego.geographicapi.exceptions.EntityNotFoundException;
@@ -19,7 +20,7 @@ public class CityServiceImpl implements CityService {
 	}
 
 	@Override
-	public Long insertCity(City city, Long stateId, Long countryId) {
+	public City insertCity(City city, Long stateId, Long countryId) {
 		Country country = countryRepository.findOne(countryId);
 		if (country == null) {
 			throw new EntityNotFoundException("Country", "Id", countryId);
@@ -36,12 +37,12 @@ public class CityServiceImpl implements CityService {
 		State updatedState = findStateById(stateId, updatedCountry);
 		City updatedCity = findCityByFields(city, updatedState);
 
-		return updatedCity.getId();
+		return updatedCity;
 
 	}
 
 	@Override
-	public City getCity(Long cityId, Long stateId, Long countryId) {
+	public City getCityById(Long cityId, Long stateId, Long countryId) {
 		Country country = countryRepository.findOne(countryId);
 		if (country == null) {
 			throw new EntityNotFoundException("Country", "Id", countryId);
@@ -62,7 +63,7 @@ public class CityServiceImpl implements CityService {
 
 
 	@Override
-	public void updateCity(City city, Long stateId, Long countryId) {
+	public City updateCity(City city, Long stateId, Long countryId) {
 		Country country = countryRepository.findOne(countryId);
 		if (country == null) {
 			throw new EntityNotFoundException("Country", "Id", countryId);
@@ -75,12 +76,11 @@ public class CityServiceImpl implements CityService {
 		
 		for (int i = 0; i < state.getCities().size(); i++) {
 			if (state.getCities().get(i).getId() == city.getId()) {
-				state.getCities().get(i).setName(city.getName());
-				state.getCities().get(i).setCityCode(city.getCityCode());
-				
+				BeanUtils.copyProperties(city, state.getCities().get(i), "id");
+			
 				countryRepository.save(country);
-				
-				return;
+			
+				return state.getCities().get(i);
 			}
 		}
 		

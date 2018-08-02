@@ -20,12 +20,12 @@ public class CountryServiceImpl implements CountryService {
 	}
 
 	@Override
-	public Long insertCountry(Country country) {
-		return countryRepository.save(country).getId();
+	public Country insertCountry(Country country) {
+		return countryRepository.save(country);
 	}
 
 	@Override
-	public Country getCountry(Long id) {
+	public Country getCountryById(Long id) {
 		Country countryReturned = countryRepository.findOne(id);
 		if (countryReturned == null) {
 			throw new EntityNotFoundException("Country", "Id", id);
@@ -40,7 +40,7 @@ public class CountryServiceImpl implements CountryService {
 	}
 	
 	@Override
-	public void updateCountry(Country updatedCountry) {
+	public Country updateCountry(Country updatedCountry) {
 		
 		Country curentCountry = countryRepository.findOne(updatedCountry.getId());
 		
@@ -50,7 +50,7 @@ public class CountryServiceImpl implements CountryService {
 		
 		BeanUtils.copyProperties(updatedCountry, curentCountry, "id");
 
-		countryRepository.save(curentCountry);
+		return countryRepository.save(curentCountry);
 
 	}
 

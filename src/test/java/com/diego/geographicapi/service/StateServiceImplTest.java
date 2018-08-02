@@ -52,21 +52,21 @@ public class StateServiceImplTest {
 	@Test
 	public void shouldReturnStateWithIdWhenNewStateisInsertedInExistingCountry() {
 		long id = 2;
-		State stateReturned = new State();
-		stateReturned.setId(id);
-		stateReturned.setName(state.getName());
-		stateReturned.setStateCode(state.getStateCode());
+		State stateToReturn = new State();
+		stateToReturn.setId(id);
+		stateToReturn.setName(state.getName());
+		stateToReturn.setStateCode(state.getStateCode());
 		Country countryWithState = new Country();
 		countryWithState.setName(country.getName());
 		countryWithState.setCountryCode(country.getCountryCode());
 		countryWithState.setId(countryId);
-		countryWithState.getStates().add(stateReturned);
+		countryWithState.getStates().add(stateToReturn);
 		when(countryRepositoryMock.findOne(countryId)).thenReturn(country);
 		when(countryRepositoryMock.save(country)).thenReturn(countryWithState);
 
-		long returnedId = stateService.insertState(state, countryId);
+		State stateReturned = stateService.insertState(state, countryId);
 
-		assertEquals(id, returnedId);
+		assertEquals(state, stateReturned);
 	}
 
 	@Test
@@ -86,7 +86,7 @@ public class StateServiceImplTest {
 		country.getStates().add(state);
 		when(countryRepositoryMock.findOne(countryId)).thenReturn(country);
 
-		State stateReturned = stateService.getState(state.getId(), countryId);
+		State stateReturned = stateService.getStateById(state.getId(), countryId);
 
 		assertEquals(state, stateReturned);
 	}
@@ -100,7 +100,7 @@ public class StateServiceImplTest {
 
 		thrown.expect(EntityNotFoundException.class);
 		thrown.expectMessage(String.format("Country not found with Id : '%s'", countryId));
-		stateService.getState(id, countryId);
+		stateService.getStateById(id, countryId);
 	}
 
 	@Test
@@ -111,7 +111,7 @@ public class StateServiceImplTest {
 
 		thrown.expect(EntityNotFoundException.class);
 		thrown.expectMessage(String.format("State not found with Id : '%s'", id));
-		stateService.getState(state.getId(), countryId);
+		stateService.getStateById(state.getId(), countryId);
 
 	}
 
