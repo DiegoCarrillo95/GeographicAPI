@@ -1,6 +1,5 @@
 package com.diego.geographicapi.service.implementation;
 
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import com.diego.geographicapi.exceptions.ResourceNotFoundException;
@@ -12,8 +11,11 @@ import com.diego.geographicapi.service.StateService;
 @Service
 public class StateServiceImpl implements StateService {
 
-	@Autowired
-	CountryRepository countryRepository;
+	private final CountryRepository countryRepository;
+	
+	public StateServiceImpl(CountryRepository countryRepository) {
+		this.countryRepository = countryRepository;
+	}
 
 	@Override
 	public Long insertState(State state, Long countryId) {

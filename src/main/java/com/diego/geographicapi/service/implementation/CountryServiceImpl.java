@@ -2,7 +2,7 @@ package com.diego.geographicapi.service.implementation;
 
 import java.util.List;
 
-import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.BeanUtils;
 import org.springframework.stereotype.Service;
 
 import com.diego.geographicapi.exceptions.ResourceNotFoundException;
@@ -13,8 +13,11 @@ import com.diego.geographicapi.service.CountryService;
 @Service
 public class CountryServiceImpl implements CountryService {
 
-	@Autowired
-	CountryRepository countryRepository;
+	private final CountryRepository countryRepository;
+	
+	public CountryServiceImpl(CountryRepository countryRepository) {
+		this.countryRepository = countryRepository;
+	}
 
 	@Override
 	public Long insertCountry(Country country) {
@@ -37,12 +40,17 @@ public class CountryServiceImpl implements CountryService {
 	}
 	
 	@Override
-	public void updateCountry(Country country) {
-		if(countryRepository.findOne(country.getId()) == null) {
-			throw new ResourceNotFoundException("Country", "Id", country.getId());
+	public void updateCountry(Country updatedCountry) {
+		
+		Country curentCountry = countryRepository.findOne(updatedCountry.getId());
+		
+		if(curentCountry == null) {
+			throw new ResourceNotFoundException("Country", "Id", updatedCountry.getId());
 		}
 		
-		countryRepository.save(country);
+		BeanUtils.copyProperties(updatedCountry, curentCountry, "id");
+
+		countryRepository.save(curentCountry);
 
 	}
 

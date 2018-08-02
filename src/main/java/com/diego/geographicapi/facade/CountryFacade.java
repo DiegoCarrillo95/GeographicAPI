@@ -3,7 +3,6 @@ package com.diego.geographicapi.facade;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import com.diego.geographicapi.dto.CountryDto;
@@ -14,8 +13,18 @@ import com.diego.geographicapi.util.Transformer;
 @Component
 public class CountryFacade {
 	
-	@Autowired
-	private CountryService countryService;
+	private final CountryService countryService;
+	
+	public CountryFacade(CountryService countryService) {
+		this.countryService = countryService;
+	}
+	
+	public CountryDto insertCountry(CountryDto countryDto) {
+		long id = countryService.insertCountry(Transformer.countryDtoToModelTransformer(countryDto));
+		countryDto.setId(id);
+
+		return countryDto;
+	}
 	
 	public List<CountryDto> getAllCountries() {
 		List<CountryDto> countryDtos = new ArrayList<>();
