@@ -94,6 +94,25 @@ public class CountryServiceImplTest {
 		thrown.expectMessage(String.format("Country not found with Id : '%s'", id));
 		countryService.getCountryById(id);
 	}
+	
+	@Test
+	public void shouldReturnCountryWhenGetCountryByCountryCodeMethodisCalledWithExistingCountryCode(){
+		when(countryRepositoryMock.findByCountryCode("BR")).thenReturn(country);
+		
+		Country returnedCountry = countryService.getCountryByCountryCode("BR");
+		
+		assertEquals(country, returnedCountry);
+	}
+	
+	@Test
+	public void shouldReturnCountryExceptionWhenGetCountryByCountryCodeMethodisCalledWithUnexistingCountryCode(){
+		String unexistingCountryCode = "US";
+		when(countryRepositoryMock.findByCountryCode(unexistingCountryCode)).thenReturn(null);
+		
+		thrown.expect(EntityNotFoundException.class);
+		thrown.expectMessage(String.format("Country not found with CountryCode : '%s'", unexistingCountryCode));
+		countryService.getCountryByCountryCode(unexistingCountryCode);
+	}
 
 	@Test
 	public void shouldUpdateCountryWhenExistingCountryIsUpdated() {

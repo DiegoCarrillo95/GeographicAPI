@@ -8,5 +8,5 @@ import com.diego.geographicapi.model.Country;
 
 @Repository
 public interface CountryRepository extends JpaRepository<Country, Long> {
-	
+	public Country findByCountryCode(String countryCode); 
 }
