@@ -9,6 +9,7 @@ import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
+import javax.persistence.JoinColumn;
 import javax.persistence.OneToMany;
 import javax.persistence.Table;
 import javax.validation.constraints.Size;
@@ -42,6 +43,7 @@ public class Country {
 	private String countryCode;
 	
 	@OneToMany(cascade = CascadeType.ALL)
+	@JoinColumn(name="country_id", referencedColumnName="id")
 	@EqualsAndHashCode.Exclude
 	private List<State> states = new ArrayList<>();
 

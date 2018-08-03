@@ -27,7 +27,7 @@ public class City {
 
 	@NotBlank
 	@Column(unique = true)
-	@Size(min = 3, message = "Name should have at least 3 and less than 100 characters")
+	@Size(min = 3, max = 100, message = "Name should have at least 3 and less than 100 characters")
 	private String name;
 
 	@NotBlank

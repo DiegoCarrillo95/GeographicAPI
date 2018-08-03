@@ -10,6 +10,7 @@ import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
+import javax.persistence.JoinColumn;
 import javax.persistence.OneToMany;
 import javax.persistence.Table;
 import javax.validation.constraints.Size;
@@ -34,7 +35,7 @@ public class State {
 	
 	@NotBlank
 	@Column(unique=true)
-	@Size(min = 3, message = "Name should have at least 3 and less than 100 characters")
+	@Size(min = 3, max = 100, message = "Name should have at least 3 and less than 100 characters")
 	private String name;
 	
 	@NotBlank
@@ -43,6 +44,7 @@ public class State {
 	private String stateCode;
 	
 	@OneToMany(cascade = CascadeType.ALL)
+	@JoinColumn(name="state_id", referencedColumnName="id")
 	@EqualsAndHashCode.Exclude
 	private List<City> cities = new ArrayList<>();
 }

@@ -55,8 +55,7 @@ public class CountryRepositoryTest {
 		Country insertedCountry = countryRepository.save(country);
 		State state = new State();
 		state.setName("Paraná");
-		state.setStateCode("PR");
-		
+		state.setStateCode("PR");		
 		insertedCountry.getStates().add(state);
 		insertedCountry = countryRepository.save(country);
 		
