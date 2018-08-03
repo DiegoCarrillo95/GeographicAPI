@@ -18,6 +18,7 @@ import com.diego.geographicapi.exceptions.EntityNotFoundException;
 import com.diego.geographicapi.model.Country;
 import com.diego.geographicapi.model.State;
 import com.diego.geographicapi.repository.CountryRepository;
+import com.diego.geographicapi.repository.StateRepository;
 import com.diego.geographicapi.service.implementation.StateServiceImpl;
 
 @RunWith(MockitoJUnitRunner.class)
@@ -25,6 +26,9 @@ public class StateServiceImplTest {
 
 	@Mock
 	private CountryRepository countryRepositoryMock;
+	
+	@Mock
+	private StateRepository stateRepositoryMock;
 
 	@InjectMocks
 	private StateServiceImpl stateService;
@@ -85,7 +89,8 @@ public class StateServiceImplTest {
 		state.setId(id);
 		country.getStates().add(state);
 		when(countryRepositoryMock.findOne(countryId)).thenReturn(country);
-
+		when(stateRepositoryMock.findOneByCountry(id, countryId)).thenReturn(state);
+		
 		State stateReturned = stateService.getStateById(state.getId(), countryId);
 
 		assertEquals(state, stateReturned);
@@ -108,6 +113,7 @@ public class StateServiceImplTest {
 		long id = 2;
 		state.setId(id);
 		when(countryRepositoryMock.findOne(countryId)).thenReturn(country);
+		when(stateRepositoryMock.findOneByCountry(id, countryId)).thenReturn(null);
 
 		thrown.expect(EntityNotFoundException.class);
 		thrown.expectMessage(String.format("State not found with Id : '%s'", id));

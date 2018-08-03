@@ -46,6 +46,7 @@ public class StateRepositoryTest {
 		country.getStates().add(state);
 		
 		country = countryRepository.save(country);
+		state = country.getStates().get(0);
 	}
 	
 	@After
@@ -55,7 +56,7 @@ public class StateRepositoryTest {
 	}
 	
 	@Test
-	public void shouldReturnStateWhenFindByCountryMethodIsCalled() {
+	public void shouldReturnStateListWhenFindByCountryMethodIsCalled() {
 		
 		List<State> returnedStates = stateRepository.findByCountry(country.getId());
 		
@@ -64,7 +65,7 @@ public class StateRepositoryTest {
 	}
 	
 	@Test
-	public void shouldReturnNullWhenNewFindByCountryMethodIsCalledWithNoStateInCountry() {
+	public void shouldReturnEmptyListWhenNewFindByCountryMethodIsCalledWithNoStateInCountry() {
 		
 		country.setStates(new ArrayList<>());
 		country = countryRepository.save(country);
@@ -72,5 +73,12 @@ public class StateRepositoryTest {
 		List<State> returnedStates = stateRepository.findByCountry(country.getId());
 		
 		assertEquals(0, returnedStates.size());
+	}
+	
+	@Test
+	public void shouldReturnStateWhenFindOneByCountryMethodIsCalled() {
+		State returnedState = stateRepository.findOneByCountry(state.getId(), country.getId());
+		
+		assertEquals(state, returnedState);
 	}
 }

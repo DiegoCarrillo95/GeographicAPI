@@ -7,15 +7,18 @@ import com.diego.geographicapi.exceptions.EntityNotFoundException;
 import com.diego.geographicapi.model.Country;
 import com.diego.geographicapi.model.State;
 import com.diego.geographicapi.repository.CountryRepository;
+import com.diego.geographicapi.repository.StateRepository;
 import com.diego.geographicapi.service.StateService;
 
 @Service
 public class StateServiceImpl implements StateService {
 
 	private final CountryRepository countryRepository;
+	private final StateRepository stateRepository;
 	
-	public StateServiceImpl(CountryRepository countryRepository) {
+	public StateServiceImpl(CountryRepository countryRepository, StateRepository stateRepository) {
 		this.countryRepository = countryRepository;
+		this.stateRepository = stateRepository;
 	}
 
 	@Override
@@ -34,19 +37,17 @@ public class StateServiceImpl implements StateService {
 
 	@Override
 	public State getStateById(Long stateId, Long countryId) {
-		Country country = countryRepository.findOne(countryId);
-
-		if (country == null) {
+		if (countryRepository.findOne(countryId) == null) {
 			throw new EntityNotFoundException("Country", "Id", countryId);
 		}
 
-		for (State state : country.getStates()) {
-			if (state.getId() == stateId) {
-				return state;
-			}
-		}
+		State state = stateRepository.findOneByCountry(stateId, countryId);
 
-		throw new EntityNotFoundException("State", "Id", stateId);
+		if (state == null) {
+			throw new EntityNotFoundException("State", "Id", stateId);
+		}
+		
+		return state;
 	}
 
 	@Override
