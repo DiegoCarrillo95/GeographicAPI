@@ -67,10 +67,10 @@ public class CountryControllerTest {
 	}
 	
 	@Test
-	public void shouldReturnCountryDtoWhenGetCountryIsCalledWithExistingId() {
-		when(countryFacade.getCountry(id1)).thenReturn(countryDto1);
+	public void shouldReturnCountryDtoWhenGetCountryIsCalledWithExistingCountryCode() {
+		when(countryFacade.getCountry("BR")).thenReturn(countryDto1);
 		
-		CountryDto returnedCountry = countryController.getCountry(id1);
+		CountryDto returnedCountry = countryController.getCountry("BR");
 		
 		assertEquals(countryDto1, returnedCountry);
 	

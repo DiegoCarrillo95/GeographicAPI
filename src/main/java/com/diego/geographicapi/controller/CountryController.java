@@ -29,9 +29,9 @@ public class CountryController {
 		return countryFacade.getAllCountries();
 	}
 	
-	@GetMapping("/{id}")
-	public CountryDto getCountry(@PathVariable(value = "id") long id) {
-		return countryFacade.getCountry(id);
+	@GetMapping("/{country_code}")
+	public CountryDto getCountry(@PathVariable(value = "country_code") String countryCode) {
+		return countryFacade.getCountry(countryCode);
 	}
 	
 	@PostMapping

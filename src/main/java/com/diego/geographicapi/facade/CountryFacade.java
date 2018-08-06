@@ -35,8 +35,8 @@ public class CountryFacade {
 		return countryDtos;
 	}
 	
-	public CountryDto getCountry(long id) {
-		return Transformer.countryModelToDtoTransformer(countryService.getCountryById(id));
+	public CountryDto getCountry(String countryCode) {
+		return Transformer.countryModelToDtoTransformer(countryService.getCountryByCountryCode(countryCode));
 	}
 	
 	public void updateCountry(CountryDto countryDto) {
