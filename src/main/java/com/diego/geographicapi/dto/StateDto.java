@@ -5,8 +5,6 @@ import java.util.List;
 
 import javax.validation.constraints.Size;
 
-import com.diego.geographicapi.model.City;
-
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.Setter;
@@ -24,6 +22,6 @@ public class StateDto {
 	@Size(min = 2, max = 2, message = "State code should have 2 characters")
 	private String stateCode;
 	
-	private List<City> cities = new ArrayList<>();
+	private List<CityDto> cities = new ArrayList<>();
 	
 }

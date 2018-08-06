@@ -12,6 +12,9 @@ public class Transformer {
 		countryDto.setName(countryModel.getName());
 		countryDto.setCountryCode(countryModel.getCountryCode());
 		//TODO: countryDto.setStates(states);
+		for(State state: countryModel.getStates()){
+			countryDto.getStates().add(stateModelToDtoTransformer(state));
+		}
 		return countryDto;
 	}
 
@@ -20,7 +23,9 @@ public class Transformer {
 		countryModel.setId(countryDto.getId());
 		countryModel.setName(countryDto.getName());
 		countryModel.setCountryCode(countryDto.getCountryCode());
-		//TODO: countryModel.setStates(states);
+		for(StateDto state: countryDto.getStates()){
+			countryModel.getStates().add(stateDtoToModelTransformer(state));
+		}
 		return countryModel;
 	}
 	
