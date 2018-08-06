@@ -76,8 +76,15 @@ public class StateRepositoryTest {
 	}
 	
 	@Test
-	public void shouldReturnStateWhenFindOneByCountryMethodIsCalled() {
-		State returnedState = stateRepository.findOneByCountry(state.getId(), country.getId());
+	public void shouldReturnStateWhenFindByIdByCountryMethodIsCalled() {
+		State returnedState = stateRepository.findByIdByCountry(state.getId(), country.getId());
+		
+		assertEquals(state, returnedState);
+	}
+	
+	@Test
+	public void shouldReturnStateWhenFindByStateCodeByCountryMethodIsCalled() {
+		State returnedState = stateRepository.findByStateCodeByCountry(state.getStateCode(), country.getId());
 		
 		assertEquals(state, returnedState);
 	}

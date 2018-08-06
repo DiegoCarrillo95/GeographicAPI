@@ -16,6 +16,9 @@ public interface StateRepository extends JpaRepository<State, Long> {
 	List<State> findByCountry(Long countryId);
 	
 	@Query(value = "SELECT * FROM states WHERE id = ?1 and country_id = ?2", nativeQuery = true)
-	State findOneByCountry(Long id, Long countryId);
+	State findByIdByCountry(Long id, Long countryId);
+	
+	@Query(value = "SELECT * FROM states WHERE state_code = ?1 and country_id = ?2", nativeQuery = true)
+	State findByStateCodeByCountry(String stateCode, Long countryId);
 	
 }
