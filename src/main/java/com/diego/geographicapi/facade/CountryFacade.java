@@ -40,9 +40,8 @@ public class CountryFacade {
 	}
 
 	public CountryDto updateCountry(String countryCode, CountryDto countryDto) {
-		countryDto.setCountryCode(countryCode);
 		return Transformer.countryModelToDtoTransformer(
-				countryService.updateCountry(Transformer.countryDtoToModelTransformer(countryDto)));
+				countryService.updateCountry(countryCode, Transformer.countryDtoToModelTransformer(countryDto)));
 	}
 
 	public void deleteCountry(String countryCode) {

@@ -27,7 +27,7 @@ public class CountryStateFacade {
 	public StateDto insertState(StateDto stateDto, String countryCode) {
 		Country country = countryService.getCountryByCountryCode(countryCode);
 		country.getStates().add(Transformer.stateDtoToModelTransformer(stateDto));
-		country = countryService.updateCountry(country);
+		country = countryService.updateCountry(countryCode, country);
 
 		return Transformer
 				.stateModelToDtoTransformer(stateService.getStateByStateCode(stateDto.getStateCode(), country.getId()));
@@ -58,7 +58,7 @@ public class CountryStateFacade {
 		
 		BeanUtils.copyProperties(Transformer.stateDtoToModelTransformer(stateDto), state, "id");
 		
-		countryService.updateCountry(country);
+		countryService.updateCountry(countryCode, country);
 		
 		return Transformer.stateModelToDtoTransformer(stateService.getStateByStateCode(stateCode, country.getId()));
 	}
