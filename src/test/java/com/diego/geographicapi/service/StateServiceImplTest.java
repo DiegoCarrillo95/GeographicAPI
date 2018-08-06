@@ -89,7 +89,7 @@ public class StateServiceImplTest {
 		state.setId(id);
 		country.getStates().add(state);
 		when(countryRepositoryMock.findOne(countryId)).thenReturn(country);
-		when(stateRepositoryMock.findOneByCountry(id, countryId)).thenReturn(state);
+		when(stateRepositoryMock.findByIdByCountry(id, countryId)).thenReturn(state);
 		
 		State stateReturned = stateService.getStateById(state.getId(), countryId);
 
@@ -113,7 +113,7 @@ public class StateServiceImplTest {
 		long id = 2;
 		state.setId(id);
 		when(countryRepositoryMock.findOne(countryId)).thenReturn(country);
-		when(stateRepositoryMock.findOneByCountry(id, countryId)).thenReturn(null);
+		when(stateRepositoryMock.findByIdByCountry(id, countryId)).thenReturn(null);
 
 		thrown.expect(EntityNotFoundException.class);
 		thrown.expectMessage(String.format("State not found with Id : '%s'", id));

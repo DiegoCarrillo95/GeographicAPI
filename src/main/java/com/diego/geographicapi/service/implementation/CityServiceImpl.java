@@ -60,6 +60,12 @@ public class CityServiceImpl implements CityService {
 		
 		return city;
 	}
+	
+	@Override
+	public City getCityByCityCode(String cityCode, Long stateId, Long countryId){
+		//TODO: Implementar e testar
+		return null;
+	}
 
 
 	@Override
