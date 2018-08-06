@@ -121,22 +121,23 @@ public class CountryServiceImplTest {
 		updatedCountry.setId(country.getId());
 		updatedCountry.setName("Spain");
 		updatedCountry.setCountryCode("ES");
-		when(countryRepositoryMock.findOne(country.getId())).thenReturn(country);
+		when(countryRepositoryMock.findByCountryCode(country.getCountryCode())).thenReturn(country);
 		when(countryRepositoryMock.save(updatedCountry)).thenReturn(updatedCountry);
 
-		countryService.updateCountry(updatedCountry);
+		countryService.updateCountry(country.getCountryCode(), updatedCountry);
 
 		verify(countryRepositoryMock, times(1)).save(updatedCountry);
 	}
 
 	@Test
 	public void shouldReturnExceptionWhenUnexistingCountryIsUpdated() {
-		country.setId(id);
-		when(countryRepositoryMock.findOne(country.getId())).thenReturn(null);
+		String unexistingCountryCode = "AA";
+		country.setCountryCode(unexistingCountryCode);
+		when(countryRepositoryMock.findByCountryCode(unexistingCountryCode)).thenReturn(null);
 
 		thrown.expect(EntityNotFoundException.class);
-		thrown.expectMessage(String.format("Country not found with Id : '%s'", id));
-		countryService.updateCountry(country);
+		thrown.expectMessage(String.format("Country not found with CountryCode : '%s'", unexistingCountryCode));
+		countryService.updateCountry(unexistingCountryCode, country);
 	}
 
 	@Test

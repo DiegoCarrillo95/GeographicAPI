@@ -54,7 +54,10 @@ public class StateServiceImpl implements StateService {
 	
 	@Override
 	public State getStateByStateCode(String stateCode, Long countryId){
-		//TODO: Testar
+		if (countryRepository.findOne(countryId) == null) {
+			throw new EntityNotFoundException("Country", "Id", countryId);
+		}
+		
 		State state = stateRepository.findByStateCodeByCountry(stateCode, countryId);
 		
 		if (state == null) {
@@ -66,7 +69,13 @@ public class StateServiceImpl implements StateService {
 	
 	@Override
 	public List<State> getAllStatesByCountry(Long countryId){
-		return stateRepository.findByCountry(countryId);
+		List<State> list = stateRepository.findByCountry(countryId);
+		
+		if(list == null) {
+			throw new EntityNotFoundException("Country", "Id", countryId);
+		}
+		
+		return list;
 	}
 
 	@Override
