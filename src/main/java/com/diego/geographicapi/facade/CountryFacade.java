@@ -12,39 +12,42 @@ import com.diego.geographicapi.util.Transformer;
 
 @Component
 public class CountryFacade {
-	
+
 	private final CountryService countryService;
-	
+
 	public CountryFacade(CountryService countryService) {
 		this.countryService = countryService;
 	}
-	
+
 	public CountryDto insertCountry(CountryDto countryDto) {
 		Country country = countryService.insertCountry(Transformer.countryDtoToModelTransformer(countryDto));
 		countryDto.setId(country.getId());
 		return countryDto;
 	}
-	
+
 	public List<CountryDto> getAllCountries() {
 		List<CountryDto> countryDtos = new ArrayList<>();
-		
-		for(Country country: countryService.getAllCountries()) {
+
+		for (Country country : countryService.getAllCountries()) {
 			countryDtos.add(Transformer.countryModelToDtoTransformer(country));
 		}
-		
+
 		return countryDtos;
 	}
-	
+
 	public CountryDto getCountry(String countryCode) {
 		return Transformer.countryModelToDtoTransformer(countryService.getCountryByCountryCode(countryCode));
 	}
-	
-	public void updateCountry(CountryDto countryDto) {
-		countryService.updateCountry(Transformer.countryDtoToModelTransformer(countryDto));
+
+	public CountryDto updateCountry(String countryCode, CountryDto countryDto) {
+		countryDto.setCountryCode(countryCode);
+		return Transformer.countryModelToDtoTransformer(
+				countryService.updateCountry(Transformer.countryDtoToModelTransformer(countryDto)));
 	}
-	
-	public void deleteCountry(CountryDto countryDto) {
-		countryService.deleteCountry(Transformer.countryDtoToModelTransformer(countryDto).getId());
+
+	public void deleteCountry(String countryCode) {
+		Country country = countryService.getCountryByCountryCode(countryCode);
+		countryService.deleteCountry(country.getId());
 	}
-	
+
 }

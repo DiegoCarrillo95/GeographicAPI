@@ -1,5 +1,7 @@
 package com.diego.geographicapi.service.implementation;
 
+import java.util.List;
+
 import org.springframework.beans.BeanUtils;
 import org.springframework.stereotype.Service;
 
@@ -52,10 +54,20 @@ public class StateServiceImpl implements StateService {
 	
 	@Override
 	public State getStateByStateCode(String stateCode, Long countryId){
-		//TODO: Implementar e testar
-		return null;
+		//TODO: Testar
+		State state = stateRepository.findByStateCodeByCountry(stateCode, countryId);
+		
+		if (state == null) {
+			throw new EntityNotFoundException("State", "StateCode", stateCode);
+		}
+		
+		return state;
 	}
 	
+	@Override
+	public List<State> getAllStatesByCountry(Long countryId){
+		return stateRepository.findByCountry(countryId);
+	}
 
 	@Override
 	public State updateState(State state, Long countryId) {
@@ -90,7 +102,7 @@ public class StateServiceImpl implements StateService {
 			if (country.getStates().get(i).getId() == stateId) {
 				
 				country.getStates().remove(i);
-				
+				stateRepository.delete(stateId);
 				countryRepository.save(country);
 				
 				return;

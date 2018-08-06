@@ -113,14 +113,14 @@ public class CountryFacadeTest {
 
 	@Test
 	public void shouldCallUpdateCountryServiceWhenUpdateCountryisCalledWithExistingId() {
-		countryFacade.updateCountry(countryDto1);
+		countryFacade.updateCountry(countryDto1.getCountryCode(), countryDto1);
 
 		verify(countryService, times(1)).updateCountry(country1);
 	}
 
 	@Test
 	public void shouldCallDeleteCountryServiceWhenDeleteCountryIsCalledWithExistingId() {
-		countryFacade.deleteCountry(countryDto1);
+		countryFacade.deleteCountry(countryDto1.getCountryCode());
 
 		verify(countryService, times(1)).deleteCountry(country1.getId());
 	}

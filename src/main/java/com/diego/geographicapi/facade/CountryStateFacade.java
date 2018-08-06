@@ -3,6 +3,7 @@ package com.diego.geographicapi.facade;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.springframework.beans.BeanUtils;
 import org.springframework.stereotype.Component;
 
 import com.diego.geographicapi.dto.StateDto;
@@ -48,5 +49,23 @@ public class CountryStateFacade {
 		Country country = countryService.getCountryByCountryCode(countryCode);
 		return Transformer.stateModelToDtoTransformer(stateService.getStateByStateCode(stateCode, country.getId()));
 
+	}
+
+	public StateDto updateState(String stateCode, StateDto stateDto, String countryCode) {
+		stateDto.setStateCode(stateCode);
+		Country country = countryService.getCountryByCountryCode(countryCode);
+		State state = stateService.getStateByStateCode(stateCode, country.getId());
+		
+		BeanUtils.copyProperties(Transformer.stateDtoToModelTransformer(stateDto), state, "id");
+		
+		countryService.updateCountry(country);
+		
+		return Transformer.stateModelToDtoTransformer(stateService.getStateByStateCode(stateCode, country.getId()));
+	}
+	
+	public void deleteState(String stateCode, String countryCode){
+		Country country = countryService.getCountryByCountryCode(countryCode);
+		State state = stateService.getStateByStateCode(stateCode, country.getId());
+		stateService.deleteState(state.getId(), country.getId());
 	}
 }

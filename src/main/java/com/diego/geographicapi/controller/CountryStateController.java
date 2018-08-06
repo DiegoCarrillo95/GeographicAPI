@@ -4,9 +4,11 @@ import java.util.List;
 
 import javax.validation.Valid;
 
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
@@ -41,5 +43,20 @@ public class CountryStateController {
 			@Valid @RequestBody StateDto stateDto) {
 		
 		return countryStateFacade.insertState(stateDto, countryCode);
+	}
+	
+	@PutMapping("/{state_code}")
+	public StateDto updateState(@PathVariable(value = "country_code") String countryCode, 
+			@PathVariable(value = "state_code") String stateCode,
+			@Valid @RequestBody StateDto stateDto) {
+
+		return countryStateFacade.updateState(stateCode, stateDto, countryCode);
+	}
+	
+	@DeleteMapping("/{state_code}")
+	public void deleteState(@PathVariable(value = "country_code") String countryCode, 
+			@PathVariable(value = "state_code") String stateCode) {
+		
+		countryStateFacade.deleteState(stateCode, countryCode);
 	}
 }
