@@ -1,10 +1,12 @@
 package com.diego.geographicapi.model;
 
+import javax.persistence.CascadeType;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
+import javax.persistence.ManyToOne;
 import javax.persistence.Table;
 import javax.validation.constraints.Size;
 
@@ -34,5 +36,8 @@ public class City {
 	@Column(unique = true)
 	@Size(min = 3, max = 3, message = "City code should have 3 characters")
 	private String cityCode;
+	
+	@ManyToOne(cascade = {CascadeType.PERSIST})
+	private State state;
 
 }

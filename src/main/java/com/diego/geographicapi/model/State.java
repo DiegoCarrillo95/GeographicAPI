@@ -10,7 +10,7 @@ import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
-import javax.persistence.JoinColumn;
+import javax.persistence.ManyToOne;
 import javax.persistence.OneToMany;
 import javax.persistence.Table;
 import javax.validation.constraints.Size;
@@ -43,8 +43,15 @@ public class State {
 	@Size(min = 2, max = 2, message = "State code should have 2 characters")
 	private String stateCode;
 	
-	@OneToMany(cascade = CascadeType.ALL)
-	@JoinColumn(name="state_id", referencedColumnName="id")
+	@ManyToOne(cascade = {CascadeType.PERSIST})
+	Country country;
+	
+	@OneToMany(cascade = CascadeType.ALL, mappedBy = "state")
 	@EqualsAndHashCode.Exclude
 	private List<City> cities = new ArrayList<>();
+	
+	public void addCity(City city) {
+		this.cities.add(city);
+		city.setState(this);
+	}
 }

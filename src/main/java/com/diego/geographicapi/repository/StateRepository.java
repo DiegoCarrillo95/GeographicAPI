@@ -4,6 +4,7 @@ import java.util.List;
 
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
 import com.diego.geographicapi.model.State;
@@ -12,13 +13,9 @@ import com.diego.geographicapi.model.State;
 @Repository
 public interface StateRepository extends JpaRepository<State, Long> {
 	
-	@Query(value = "SELECT * FROM states WHERE country_id = ?1", nativeQuery = true)
-	List<State> findByCountry(Long countryId);
+	@Query("select s from State s where s.stateCode = :stateCode and s.country.countryCode = :countryCode")
+	State findByStateCodeAndCountryCode(@Param("stateCode") String stateCode, @Param("countryCode") String countryCode);
 	
-	@Query(value = "SELECT * FROM states WHERE id = ?1 and country_id = ?2", nativeQuery = true)
-	State findByIdByCountry(Long id, Long countryId);
-	
-	@Query(value = "SELECT * FROM states WHERE state_code = ?1 and country_id = ?2", nativeQuery = true)
-	State findByStateCodeByCountry(String stateCode, Long countryId);
-	
+	@Query("select s from State s where s.country.countryCode = :countryCode")
+	List<State> findAllByCountryCode(@Param("countryCode") String countryCode);
 }

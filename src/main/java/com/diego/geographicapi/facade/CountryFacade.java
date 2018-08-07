@@ -46,7 +46,7 @@ public class CountryFacade {
 
 	public void deleteCountry(String countryCode) {
 		Country country = countryService.getCountryByCountryCode(countryCode);
-		countryService.deleteCountry(country.getId());
+		countryService.deleteCountry(country.getCountryCode());
 	}
 
 }

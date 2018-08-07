@@ -3,39 +3,29 @@ package com.diego.geographicapi.facade;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.springframework.beans.BeanUtils;
 import org.springframework.stereotype.Component;
 
 import com.diego.geographicapi.dto.StateDto;
-import com.diego.geographicapi.model.Country;
 import com.diego.geographicapi.model.State;
-import com.diego.geographicapi.service.CountryService;
 import com.diego.geographicapi.service.StateService;
 import com.diego.geographicapi.util.Transformer;
 
 @Component
 public class CountryStateFacade {
 
-	private final CountryService countryService;
 	private final StateService stateService;
 
-	public CountryStateFacade(CountryService countryService, StateService stateService) {
-		this.countryService = countryService;
+	public CountryStateFacade(StateService stateService) {
 		this.stateService = stateService;
 	}
 
 	public StateDto insertState(StateDto stateDto, String countryCode) {
-		Country country = countryService.getCountryByCountryCode(countryCode);
-		country.getStates().add(Transformer.stateDtoToModelTransformer(stateDto));
-		country = countryService.updateCountry(countryCode, country);
-
-		return Transformer
-				.stateModelToDtoTransformer(stateService.getStateByStateCode(stateDto.getStateCode(), country.getId()));
+		return Transformer.stateModelToDtoTransformer(
+				stateService.insertState(Transformer.stateDtoToModelTransformer(stateDto), countryCode));
 	}
 
 	public List<StateDto> getAllStates(String countryCode) {
-		Country country = countryService.getCountryByCountryCode(countryCode);
-		List<State> stateModelList = stateService.getAllStatesByCountry(country.getId());
+		List<State> stateModelList = stateService.getAllStatesByCountryCode(countryCode);
 		List<StateDto> stateDtoList = new ArrayList<>();
 
 		for (State state : stateModelList) {
@@ -46,26 +36,17 @@ public class CountryStateFacade {
 	}
 
 	public StateDto getState(String stateCode, String countryCode) {
-		Country country = countryService.getCountryByCountryCode(countryCode);
-		return Transformer.stateModelToDtoTransformer(stateService.getStateByStateCode(stateCode, country.getId()));
+		return Transformer
+				.stateModelToDtoTransformer(stateService.getStateByStateCode(stateCode, countryCode));
 
 	}
 
 	public StateDto updateState(String stateCode, StateDto stateDto, String countryCode) {
-		stateDto.setStateCode(stateCode);
-		Country country = countryService.getCountryByCountryCode(countryCode);
-		State state = stateService.getStateByStateCode(stateCode, country.getId());
-		
-		BeanUtils.copyProperties(Transformer.stateDtoToModelTransformer(stateDto), state, "id");
-		
-		countryService.updateCountry(countryCode, country);
-		
-		return Transformer.stateModelToDtoTransformer(stateService.getStateByStateCode(stateCode, country.getId()));
+		// TODO:
+		return null;
 	}
-	
-	public void deleteState(String stateCode, String countryCode){
-		Country country = countryService.getCountryByCountryCode(countryCode);
-		State state = stateService.getStateByStateCode(stateCode, country.getId());
-		stateService.deleteState(state.getId(), country.getId());
+
+	public void deleteState(String stateCode, String countryCode) {
+		// TODO:
 	}
 }

@@ -1,151 +1,63 @@
 package com.diego.geographicapi.service.implementation;
 
-import org.springframework.beans.BeanUtils;
+import java.util.List;
+
 import org.springframework.stereotype.Service;
 
 import com.diego.geographicapi.exceptions.EntityNotFoundException;
 import com.diego.geographicapi.model.City;
-import com.diego.geographicapi.model.Country;
 import com.diego.geographicapi.model.State;
-import com.diego.geographicapi.repository.CountryRepository;
+import com.diego.geographicapi.repository.CityRepository;
+import com.diego.geographicapi.repository.StateRepository;
 import com.diego.geographicapi.service.CityService;
 
 @Service
 public class CityServiceImpl implements CityService {
 
-	private final CountryRepository countryRepository;
-	
-	public CityServiceImpl(CountryRepository countryRepository) {
-		this.countryRepository = countryRepository;
+	private final StateRepository stateRepository;
+
+	private final CityRepository cityRepository;
+
+	public CityServiceImpl(CityRepository cityRepository, StateRepository stateRepository) {
+		this.cityRepository = cityRepository;
+		this.stateRepository = stateRepository;
 	}
 
 	@Override
-	public City insertCity(City city, Long stateId, Long countryId) {
-		Country country = countryRepository.findOne(countryId);
-		if (country == null) {
-			throw new EntityNotFoundException("Country", "Id", countryId);
+	public City insertCity(City city, String stateCode, String countryCode) {
+		State stateToUpdate = stateRepository.findByStateCodeAndCountryCode(stateCode, countryCode);
+
+		if (stateToUpdate == null) {
+			throw new EntityNotFoundException("State", "StateCode", stateCode);
 		}
 
-		State state = findStateById(stateId, country);
-		if (state == null) {
-			throw new EntityNotFoundException("State", "Id", stateId);
-		}
+		stateToUpdate.addCity(city);
 
-		state.getCities().add(city);
+		stateRepository.save(stateToUpdate);
 
-		Country updatedCountry = countryRepository.save(country);
-		State updatedState = findStateById(stateId, updatedCountry);
-		City updatedCity = findCityByFields(city, updatedState);
-
-		return updatedCity;
+		return cityRepository.findByCityCodeAndStateCodeAndCountryCode(city.getCityCode(), stateCode, countryCode);
 
 	}
 
 	@Override
-	public City getCityById(Long cityId, Long stateId, Long countryId) {
-		Country country = countryRepository.findOne(countryId);
-		if (country == null) {
-			throw new EntityNotFoundException("Country", "Id", countryId);
-		}
-
-		State state = findStateById(stateId, country);
-		if (state == null) {
-			throw new EntityNotFoundException("State", "Id", stateId);
-		}
-		
-		City city = findCityById(cityId, state);
-		if (city == null) {
-			throw new EntityNotFoundException("City", "Id", cityId);
-		}
-		
-		return city;
+	public City getCityByCityCode(String cityCode, String stateCode, String countryCode) {
+		return cityRepository.findByCityCodeAndStateCodeAndCountryCode(cityCode, stateCode, countryCode);
 	}
-	
+
 	@Override
-	public City getCityByCityCode(String cityCode, Long stateId, Long countryId){
-		//TODO: Implementar e testar
+	public List<City> getAllCitiesByStateCodeAndCountryCode(String stateCode, String countryCode) {
+		return cityRepository.findAllByStateCodeCountryCode(stateCode, countryCode);
+	}
+
+	@Override
+	public City updateCity(City city, String stateCode, String countryCode) {
+		// TODO Auto-generated method stub
 		return null;
 	}
 
-
 	@Override
-	public City updateCity(City city, Long stateId, Long countryId) {
-		Country country = countryRepository.findOne(countryId);
-		if (country == null) {
-			throw new EntityNotFoundException("Country", "Id", countryId);
-		}
+	public void deleteCity(String cityCode, String stateCode, String countryCode) {
+		// TODO Auto-generated method stub
 
-		State state = findStateById(stateId, country);
-		if (state == null) {
-			throw new EntityNotFoundException("State", "Id", stateId);
-		}
-		
-		for (int i = 0; i < state.getCities().size(); i++) {
-			if (state.getCities().get(i).getId() == city.getId()) {
-				BeanUtils.copyProperties(city, state.getCities().get(i), "id");
-			
-				countryRepository.save(country);
-			
-				return state.getCities().get(i);
-			}
-		}
-		
-		throw new EntityNotFoundException("City", "Id", city.getId());
 	}
-
-	@Override
-	public void deleteCity(Long cityId, Long stateId, Long countryId) {
-		Country country = countryRepository.findOne(countryId);
-		if (country == null) {
-			throw new EntityNotFoundException("Country", "Id", countryId);
-		}
-
-		State state = findStateById(stateId, country);
-		if (state == null) {
-			throw new EntityNotFoundException("State", "Id", stateId);
-		}
-		
-		for (int i = 0; i < state.getCities().size(); i++) {
-			if (state.getCities().get(i).getId() == cityId) {
-				
-				state.getCities().remove(i);
-				countryRepository.save(country);
-				return;
-			}
-		}
-		
-		throw new EntityNotFoundException("City", "Id", cityId);
-	}
-
-	private State findStateById(Long stateId, Country country) {
-		for (State state : country.getStates()) {
-			if (state.getId() == stateId) {
-				return state;
-			}
-		}
-
-		return null;
-	}
-
-	private City findCityById(Long cityId, State state) {
-		for (City city : state.getCities()) {
-			if (city.getId() == cityId) {
-				return city;
-			}
-		}
-		
-		return null;
-	}
-	
-	private City findCityByFields(City cityWithoutId, State state) {
-		for (City city : state.getCities()) {
-			if (city.getName() == cityWithoutId.getName() && city.getCityCode() == cityWithoutId.getCityCode()) {
-				return city;
-			}
-		}
-
-		return null;
-	}
-
-	
 }

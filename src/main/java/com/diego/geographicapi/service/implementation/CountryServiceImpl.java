@@ -23,16 +23,6 @@ public class CountryServiceImpl implements CountryService {
 	public Country insertCountry(Country country) {
 		return countryRepository.save(country);
 	}
-
-	@Override
-	public Country getCountryById(Long id) {
-		Country countryReturned = countryRepository.findOne(id);
-		if (countryReturned == null) {
-			throw new EntityNotFoundException("Country", "Id", id);
-		}
-		
-		return countryReturned;
-	}
 	
 	@Override
 	public Country getCountryByCountryCode(String countryCode) {
@@ -64,10 +54,10 @@ public class CountryServiceImpl implements CountryService {
 	}
 
 	@Override
-	public void deleteCountry(Long id) {
-		Country countryToDelete = countryRepository.findOne(id);
+	public void deleteCountry(String countryCode) {
+		Country countryToDelete = countryRepository.findByCountryCode(countryCode);
 		if(countryToDelete == null) {
-			throw new EntityNotFoundException("Country", "Id", id);
+			throw new EntityNotFoundException("Country", "CountryCode", countryCode);
 		}
 		
 		countryRepository.delete(countryToDelete);
