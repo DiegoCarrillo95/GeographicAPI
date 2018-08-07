@@ -6,6 +6,8 @@ import java.util.List;
 import org.springframework.stereotype.Component;
 
 import com.diego.geographicapi.dto.StateDto;
+import com.diego.geographicapi.exceptions.EntityNotFoundException;
+import com.diego.geographicapi.exceptions.ResourceNotFoundException;
 import com.diego.geographicapi.model.State;
 import com.diego.geographicapi.service.StateService;
 import com.diego.geographicapi.util.Transformer;
@@ -25,20 +27,26 @@ public class CountryStateFacade {
 	}
 
 	public List<StateDto> getAllStates(String countryCode) {
-		List<State> stateModelList = stateService.getAllStatesByCountryCode(countryCode);
-		List<StateDto> stateDtoList = new ArrayList<>();
+		try {
+			List<State> stateModelList = stateService.getAllStatesByCountryCode(countryCode);
+			List<StateDto> stateDtoList = new ArrayList<>();
 
-		for (State state : stateModelList) {
-			stateDtoList.add(Transformer.stateModelToDtoTransformer(state));
+			for (State state : stateModelList) {
+				stateDtoList.add(Transformer.stateModelToDtoTransformer(state));
+			}
+
+			return stateDtoList;
+		} catch (EntityNotFoundException e) {
+			throw new ResourceNotFoundException(e.getResourceName(), e.getFieldName(), e.getFieldValue());
 		}
-
-		return stateDtoList;
 	}
 
 	public StateDto getState(String stateCode, String countryCode) {
-		return Transformer
-				.stateModelToDtoTransformer(stateService.getStateByStateCode(stateCode, countryCode));
-
+		try {
+			return Transformer.stateModelToDtoTransformer(stateService.getStateByStateCode(stateCode, countryCode));
+		} catch (EntityNotFoundException e) {
+			throw new ResourceNotFoundException(e.getResourceName(), e.getFieldName(), e.getFieldValue());
+		}
 	}
 
 	public StateDto updateState(String stateCode, StateDto stateDto, String countryCode) {

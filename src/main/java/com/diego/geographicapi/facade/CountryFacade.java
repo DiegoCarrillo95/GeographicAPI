@@ -6,6 +6,8 @@ import java.util.List;
 import org.springframework.stereotype.Component;
 
 import com.diego.geographicapi.dto.CountryDto;
+import com.diego.geographicapi.exceptions.EntityNotFoundException;
+import com.diego.geographicapi.exceptions.ResourceNotFoundException;
 import com.diego.geographicapi.model.Country;
 import com.diego.geographicapi.service.CountryService;
 import com.diego.geographicapi.util.Transformer;
@@ -26,17 +28,26 @@ public class CountryFacade {
 	}
 
 	public List<CountryDto> getAllCountries() {
-		List<CountryDto> countryDtos = new ArrayList<>();
+		try {
+			List<CountryDto> countryDtos = new ArrayList<>();
 
-		for (Country country : countryService.getAllCountries()) {
-			countryDtos.add(Transformer.countryModelToDtoTransformer(country));
+			for (Country country : countryService.getAllCountries()) {
+				countryDtos.add(Transformer.countryModelToDtoTransformer(country));
+			}
+
+			return countryDtos;
+		} catch (EntityNotFoundException e) {
+			throw new ResourceNotFoundException(e.getResourceName(), e.getFieldName(), e.getFieldValue());
 		}
-
-		return countryDtos;
 	}
 
 	public CountryDto getCountry(String countryCode) {
-		return Transformer.countryModelToDtoTransformer(countryService.getCountryByCountryCode(countryCode));
+		try {
+			return Transformer.countryModelToDtoTransformer(countryService.getCountryByCountryCode(countryCode));
+
+		} catch (EntityNotFoundException e) {
+			throw new ResourceNotFoundException(e.getResourceName(), e.getFieldName(), e.getFieldValue());
+		}
 	}
 
 	public CountryDto updateCountry(String countryCode, CountryDto countryDto) {

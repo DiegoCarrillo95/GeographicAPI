@@ -41,12 +41,24 @@ public class CityServiceImpl implements CityService {
 
 	@Override
 	public City getCityByCityCode(String cityCode, String stateCode, String countryCode) {
-		return cityRepository.findByCityCodeAndStateCodeAndCountryCode(cityCode, stateCode, countryCode);
+		City city = cityRepository.findByCityCodeAndStateCodeAndCountryCode(cityCode, stateCode, countryCode);
+		
+		if(city == null) {
+			throw new EntityNotFoundException("City", "CityCode", cityCode);
+		}
+		
+		return city;
 	}
 
 	@Override
 	public List<City> getAllCitiesByStateCodeAndCountryCode(String stateCode, String countryCode) {
-		return cityRepository.findAllByStateCodeCountryCode(stateCode, countryCode);
+		List<City> cities = cityRepository.findAllByStateCodeCountryCode(stateCode, countryCode);
+		
+		if(cities == null){
+			throw new EntityNotFoundException("State", "StateCode", stateCode);
+		}
+		
+		return cities;
 	}
 
 	@Override

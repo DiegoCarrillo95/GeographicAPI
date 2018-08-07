@@ -37,14 +37,24 @@ public class StateServiceImpl implements StateService {
 
 	@Override
 	public State getStateByStateCode(String stateCode, String countryCode) {
-		//TODO: Exceções
-		return stateRepository.findByStateCodeAndCountryCode(stateCode, countryCode);
+		State state = stateRepository.findByStateCodeAndCountryCode(stateCode, countryCode);
+		
+		if(state == null) {
+			throw new EntityNotFoundException("State", "StateCode", stateCode);
+		}
+		
+		return state;
 	}
 
 	@Override
 	public List<State> getAllStatesByCountryCode(String countryCode) {
-		//TODO: Exceções
-		return stateRepository.findAllByCountryCode(countryCode);
+		List<State> states = stateRepository.findAllByCountryCode(countryCode);
+		
+		if(states == null) {
+			throw new EntityNotFoundException("Country", "CountryCode", countryCode);
+		}
+		
+		return states;
 	}
 
 	@Override

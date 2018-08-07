@@ -6,6 +6,8 @@ import java.util.List;
 import org.springframework.stereotype.Component;
 
 import com.diego.geographicapi.dto.CityDto;
+import com.diego.geographicapi.exceptions.EntityNotFoundException;
+import com.diego.geographicapi.exceptions.ResourceNotFoundException;
 import com.diego.geographicapi.model.City;
 import com.diego.geographicapi.service.CityService;
 import com.diego.geographicapi.util.Transformer;
@@ -17,25 +19,33 @@ public class CountryStateCityFacade {
 	public CountryStateCityFacade(CityService cityService) {
 		this.cityService = cityService;
 	}
-	
+
 	public CityDto insertCity(CityDto cityDto, String stateCode, String countryCode) {
-		return Transformer.cityModelToDtoTransformer(cityService.insertCity(Transformer.cityDtoToModelTransformer(cityDto), stateCode, countryCode));
+		return Transformer.cityModelToDtoTransformer(
+				cityService.insertCity(Transformer.cityDtoToModelTransformer(cityDto), stateCode, countryCode));
 	}
-	
+
 	public List<CityDto> getAllCities(String stateCode, String countryCode) {
-		List<City> cityModelList = cityService.getAllCitiesByStateCodeAndCountryCode(stateCode, countryCode);
-		List<CityDto> cityDtoList = new ArrayList<>();
+		try {
+			List<City> cityModelList = cityService.getAllCitiesByStateCodeAndCountryCode(stateCode, countryCode);
+			List<CityDto> cityDtoList = new ArrayList<>();
 
-		for (City city : cityModelList) {
-			cityDtoList.add(Transformer.cityModelToDtoTransformer(city));
+			for (City city : cityModelList) {
+				cityDtoList.add(Transformer.cityModelToDtoTransformer(city));
+			}
+
+			return cityDtoList;
+		} catch (EntityNotFoundException e) {
+			throw new ResourceNotFoundException(e.getResourceName(), e.getFieldName(), e.getFieldValue());
 		}
-
-		return cityDtoList;
 	}
 
 	public CityDto getCity(String cityCode, String stateCode, String countryCode) {
-		return Transformer
-				.cityModelToDtoTransformer(cityService.getCityByCityCode(cityCode, stateCode, countryCode));
-
+		try {
+			return Transformer
+					.cityModelToDtoTransformer(cityService.getCityByCityCode(cityCode, stateCode, countryCode));
+		} catch (EntityNotFoundException e) {
+			throw new ResourceNotFoundException(e.getResourceName(), e.getFieldName(), e.getFieldValue());
+		}
 	}
 }
