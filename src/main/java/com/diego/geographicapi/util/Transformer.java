@@ -1,7 +1,9 @@
 package com.diego.geographicapi.util;
 
+import com.diego.geographicapi.dto.CityDto;
 import com.diego.geographicapi.dto.CountryDto;
 import com.diego.geographicapi.dto.StateDto;
+import com.diego.geographicapi.model.City;
 import com.diego.geographicapi.model.Country;
 import com.diego.geographicapi.model.State;
 
@@ -11,7 +13,6 @@ public class Transformer {
 		countryDto.setId(countryModel.getId());
 		countryDto.setName(countryModel.getName());
 		countryDto.setCountryCode(countryModel.getCountryCode());
-		//TODO: countryDto.setStates(states);
 		for(State state: countryModel.getStates()){
 			countryDto.getStates().add(stateModelToDtoTransformer(state));
 		}
@@ -34,7 +35,9 @@ public class Transformer {
 		stateDto.setId(stateModel.getId());
 		stateDto.setName(stateModel.getName());
 		stateDto.setStateCode(stateModel.getStateCode());
-		//TODO: stateDto.setCities(stateModel.getCities());
+		for(City city: stateModel.getCities()){
+			stateDto.getCities().add(cityModelToDtoTransformer(city));
+		}
 		return stateDto;
 	}
 	
@@ -43,8 +46,26 @@ public class Transformer {
 		stateModel.setId(stateDto.getId());
 		stateModel.setName(stateDto.getName());
 		stateModel.setStateCode(stateDto.getStateCode());
-		//TODO: stateModel.setCities(stateDto.getCities());
+		for(CityDto city: stateDto.getCities()){
+			stateModel.getCities().add(cityDtoToModelTransformer(city));
+		}
 		return stateModel;
+	}
+	
+	public static CityDto cityModelToDtoTransformer(City cityModel){
+		CityDto cityDto = new CityDto();
+		cityDto.setId(cityModel.getId());
+		cityDto.setName(cityModel.getName());
+		cityDto.setCityCode(cityModel.getCityCode());
+		return cityDto;
+	}
+	
+	public static City cityDtoToModelTransformer(CityDto cityDto) {
+		City cityModel = new City();
+		cityModel.setId(cityDto.getId());
+		cityModel.setName(cityDto.getName());
+		cityModel.setCityCode(cityDto.getCityCode());
+		return cityModel;
 	}
 
 }
