@@ -1,13 +1,12 @@
 package com.diego.geographicapi.service;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import java.util.ArrayList;
 import java.util.List;
-
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.times;
 
 import org.junit.Before;
 import org.junit.Rule;
@@ -29,250 +28,148 @@ import com.diego.geographicapi.service.implementation.StateServiceImpl;
 public class StateServiceImplTest {
 
 	@Mock
-	private CountryRepository countryRepositoryMock;
+	private StateRepository stateRepositoryMock;
 	
 	@Mock
-	private StateRepository stateRepositoryMock;
+	private CountryRepository countryRepositoryMock;
 
 	@InjectMocks
 	private StateServiceImpl stateService;
 
-	private Country country;
 	private State state;
-
-	private final long countryId = 1;
+	private Country country;
+	
+	private final long stateId = 2;
+	private final String stateName = "Paraná";
 	private final String stateCode = "PR";
+	
+	private final long countryId = 1;
+	private final String countryName = "Brasil";
+	private final String countryCode = "BR";
 
 	@Rule
 	public ExpectedException thrown = ExpectedException.none();
 
 	@Before
 	public void setup() {
-		country = new Country();
-		country.setName("Brazil");
-		country.setCountryCode("BR");
-		country.setId(countryId);
-
 		state = new State();
-		state.setName("Paraná");
+		state.setId(stateId);
+		state.setName(stateName);
 		state.setStateCode(stateCode);
-	}
-
-	@Test
-	public void shouldReturnStateWithIdWhenNewStateisInsertedInExistingCountry() {
-		long id = 2;
-		State stateToReturn = new State();
-		stateToReturn.setId(id);
-		stateToReturn.setName(state.getName());
-		stateToReturn.setStateCode(state.getStateCode());
-		Country countryWithState = new Country();
-		countryWithState.setName(country.getName());
-		countryWithState.setCountryCode(country.getCountryCode());
-		countryWithState.setId(countryId);
-		countryWithState.getStates().add(stateToReturn);
-		when(countryRepositoryMock.findOne(countryId)).thenReturn(country);
-		when(countryRepositoryMock.save(country)).thenReturn(countryWithState);
-
-		State stateReturned = stateService.insertState(state, countryId);
-
-		assertEquals(state, stateReturned);
-	}
-
-	@Test
-	public void shouldReturnExceptionWhenNewStateisInsertedInUnexistingCountry() {
-		when(countryRepositoryMock.findOne(countryId)).thenReturn(null);
-
-		thrown.expect(EntityNotFoundException.class);
-		thrown.expectMessage(String.format("Country not found with Id : '%s'", countryId));
-		stateService.insertState(state, countryId);
-		fail();
-	}
-
-	@Test
-	public void shouldReturnStateWhenExistingStateIdAndExistingCountryIdAreGiven() {
-		long id = 2;
-		state.setId(id);
-		country.getStates().add(state);
-		when(countryRepositoryMock.findOne(countryId)).thenReturn(country);
-		when(stateRepositoryMock.findByIdByCountry(id, countryId)).thenReturn(state);
 		
-		State stateReturned = stateService.getStateById(state.getId(), countryId);
-
-		assertEquals(state, stateReturned);
-	}
-
-	@Test
-	public void shouldReturnCountryExceptionWhenExistingStateIdAndUnexistingCountryIdAreGiven() {
-		long id = 2;
-		state.setId(id);
-		country.getStates().add(state);
-		when(countryRepositoryMock.findOne(countryId)).thenReturn(null);
-
-		thrown.expect(EntityNotFoundException.class);
-		thrown.expectMessage(String.format("Country not found with Id : '%s'", countryId));
-		stateService.getStateById(id, countryId);
-	}
-
-	@Test
-	public void shouldReturnStateExceptionWhenUnexistingStateIdAndExistingCountryIdAreGiven() {
-		long id = 2;
-		state.setId(id);
-		when(countryRepositoryMock.findOne(countryId)).thenReturn(country);
-		when(stateRepositoryMock.findByIdByCountry(id, countryId)).thenReturn(null);
-
-		thrown.expect(EntityNotFoundException.class);
-		thrown.expectMessage(String.format("State not found with Id : '%s'", id));
-		stateService.getStateById(state.getId(), countryId);
-
+		country = new Country();
+		country.setId(countryId);
+		country.setName(countryName);
+		country.setCountryCode(countryCode);
+		country.addState(state);
 	}
 	
 	@Test
-	public void shouldReturnStateWhenGetStateByStateCodeMethodIsCalledWithExistingStateCode() {
-		when(stateRepositoryMock.findByStateCodeByCountry(stateCode, countryId)).thenReturn(state);
-		when(countryRepositoryMock.findOne(countryId)).thenReturn(country);
-		State stateReturned = stateService.getStateByStateCode(stateCode, countryId);
+	public void shouldReturnInsertedStateWhenInsertStateMethodIsCalledWithNewStateAndExistingCountry() {
+		State insertedState = new State();
+		insertedState.setName(stateName);
+		insertedState.setStateCode(stateCode);
+		when(stateRepositoryMock.save(insertedState)).thenReturn(state);
+		when(countryRepositoryMock.findByCountryCode(countryCode)).thenReturn(country);
 		
-		assertEquals(state, stateReturned);
+		stateService.insertState(insertedState, countryCode);
+
+		assertEquals(state, insertedState);
 	}
 	
 	@Test
-	public void shouldReturnStateExceptionWhenGetStateByStateCodeMethodIsCalledWithUnexistingStateCode() {
-		String unexistingStateCode = "AA";
-		when(stateRepositoryMock.findByStateCodeByCountry(unexistingStateCode, countryId)).thenReturn(null);
-		when(countryRepositoryMock.findOne(countryId)).thenReturn(country);
+	public void shouldReturnCountryExceptionWhenInsertStateMethodIsCalledWithNewStateAndUnexistingCountry() {
+		State insertedState = new State();
+		String unexistingCountryCode = "AA";
+		when(countryRepositoryMock.findByCountryCode(countryCode)).thenReturn(null);
+		
+		thrown.expect(EntityNotFoundException.class);
+		thrown.expectMessage(String.format("Country not found with CountryCode : '%s'", unexistingCountryCode));
+		stateService.insertState(insertedState, unexistingCountryCode);
+	}
+	
+	@Test
+	public void shouldReturnStateWhenGetStateByStateCodeWithExistingStateAndCountry() {
+		when(stateRepositoryMock.findByStateCodeAndCountryCode(stateCode, countryCode)).thenReturn(state);
+		
+		State returnedState = stateService.getStateByStateCode(stateCode, countryCode);
+		
+		assertEquals(state, returnedState);
+	}
+	
+	@Test
+	public void shouldReturnStateExceptionWhenGetStateByStateCodeWithUnexistingStateAndCountry() {
+		String unexistingStateCode = "BB";
+		when(stateRepositoryMock.findByStateCodeAndCountryCode(unexistingStateCode, countryCode)).thenReturn(null);
 		
 		thrown.expect(EntityNotFoundException.class);
 		thrown.expectMessage(String.format("State not found with StateCode : '%s'", unexistingStateCode));
-		stateService.getStateByStateCode(unexistingStateCode, countryId);
+		stateService.getStateByStateCode(unexistingStateCode, countryCode);
 	}
 	
 	@Test
-	public void shouldReturnCountryExceptionWhenGetStateByStateCodeMethodIsCalledWithExistingStateCodeAndUnexistingCountryId() {
-		Long unexistingCountryId = (long) 3;
-		when(countryRepositoryMock.findOne(unexistingCountryId)).thenReturn(null);
-		
-		thrown.expect(EntityNotFoundException.class);
-		thrown.expectMessage(String.format("Country not found with Id : '%s'", unexistingCountryId));
-		stateService.getStateByStateCode(stateCode, unexistingCountryId);
-	}
-	
-	@Test
-	public void shouldReturnStateListWhenGetAllStatesByCountryMethodIsCalledWithExistingCountry(){
+	public void shouldReturnStatesListWhenGetAllStatesByCountryCodeMethodIsCalledWithExistingCountry() {
 		List<State> list = new ArrayList<>();
 		list.add(state);
-		when(stateRepositoryMock.findByCountry(countryId)).thenReturn(list);
+		when(stateRepositoryMock.findAllByCountryCode(countryCode)).thenReturn(list);
 		
-		List<State> returnedList = stateService.getAllStatesByCountry(countryId);
+		List<State> returnedList = stateService.getAllStatesByCountryCode(countryCode);
 		
 		assertEquals(list, returnedList);
 	}
 	
 	@Test
-	public void shouldReturnCountryExceptionWhenGetAllStatesByCountryMethodIsCalledWithUnexistingCountry(){
-		long unexistingCountryId = 3;
-		when(stateRepositoryMock.findByCountry(unexistingCountryId)).thenReturn(null);
+	public void shouldReturnCountryExceptionWhenGetAllStatesByCountryCodeMethodIsCalledWithUnexistingCountry() {
+		String unexistingCountryCode = "AA";
+		when(stateRepositoryMock.findAllByCountryCode(unexistingCountryCode)).thenReturn(null);
 		
 		thrown.expect(EntityNotFoundException.class);
-		thrown.expectMessage(String.format("Country not found with Id : '%s'", unexistingCountryId));
-		stateService.getAllStatesByCountry(unexistingCountryId);
+		thrown.expectMessage(String.format("Country not found with CountryCode : '%s'", unexistingCountryCode));
+		stateService.getAllStatesByCountryCode(unexistingCountryCode);
+	}
+	
+	@Test
+	public void shouldReturnUpdatedStateWhenUpdateStateMethodIsCalledWithExistingStateAndCountry(){
+		State updatedState = new State();
+		updatedState.setName("Santa Catarina");
+		updatedState.setStateCode("SC");
+		updatedState.setCountry(state.getCountry());
+		when(stateRepositoryMock.findByStateCodeAndCountryCode(stateCode, countryCode)).thenReturn(state);
+		when(stateRepositoryMock.save(updatedState)).thenReturn(updatedState);
 		
-
+		State returnedState = stateService.updateState(updatedState, stateCode, countryCode);
+		
+		assertEquals(updatedState, returnedState);
 	}
-
+	
 	@Test
-	public void shouldUpdateStateWhenExistingStateIsUpdated() {
-		long id = 2;
-		state.setId(id);
-		country.getStates().add(state);
+	public void shouldReturnStateExceptionWhenUpdateStateMethodIsCalledWithUnexistingStateAndCountry(){
+		String unexistingStateCode = "BB";
 		State updatedState = new State();
-		updatedState.setName("São Paulo");
-		updatedState.setStateCode("SP");
-		updatedState.setId(state.getId());
-		Country updatedCountry = new Country();
-		updatedCountry.setId(countryId);
-		updatedCountry.setName(country.getName());
-		updatedCountry.setCountryCode(country.getCountryCode());
-		updatedCountry.getStates().add(updatedState);
-		when(countryRepositoryMock.findOne(countryId)).thenReturn(country);
-		when(countryRepositoryMock.save(updatedCountry)).thenReturn(updatedCountry);
-
-		stateService.updateState(updatedState, updatedCountry.getId());
-
-		verify(countryRepositoryMock, times(1)).save(updatedCountry);
-	}
-
-	@Test
-	public void shouldReturnStateExceptionWhenUnexistingStateAndExistingCountryIsUpdated() {
-		long id = 2;
-		State updatedState = new State();
-		updatedState.setName("São Paulo");
-		updatedState.setStateCode("SP");
-		updatedState.setId(id);
-		Country updatedCountry = new Country();
-		updatedCountry.setId(countryId);
-		updatedCountry.setName(country.getName());
-		updatedCountry.setCountryCode(country.getCountryCode());
-		when(countryRepositoryMock.findOne(countryId)).thenReturn(updatedCountry);
+		when(stateRepositoryMock.findByStateCodeAndCountryCode(stateCode, countryCode)).thenReturn(null);
 
 		thrown.expect(EntityNotFoundException.class);
-		thrown.expectMessage(String.format("State not found with Id : '%s'", id));
-		stateService.updateState(updatedState, countryId);
-
+		thrown.expectMessage(String.format("State not found with StateCode : '%s'", unexistingStateCode));
+		stateService.updateState(updatedState, unexistingStateCode, countryCode);
 	}
-
+	
 	@Test
-	public void shouldReturnCountryExceptionWhenExistingStateAndUnexistingCountryIsUpdated() {
-		long id = 2;
-		state.setId(id);
-		country.getStates().add(state);
-		State updatedState = new State();
-		updatedState.setName("São Paulo");
-		updatedState.setStateCode("SP");
-		updatedState.setId(state.getId());
-		when(countryRepositoryMock.findOne(countryId)).thenReturn(null);
+	public void shouldCallRepositoryDeletMethodWhenDeleteMethodIsCalledWithExistingState() {
+		when(stateRepositoryMock.findByStateCodeAndCountryCode(stateCode, countryCode)).thenReturn(state);
+		
+		stateService.deleteState(stateCode, countryCode);
+		
+		verify(stateRepositoryMock, times(1)).delete(state);
+	}
+	
+	@Test
+	public void shouldReturnStateExceptionWhenDeleteStateMethodIsCalledWithUnexistingStateAndCountry(){
+		String unexistingStateCode = "BB";
+		when(stateRepositoryMock.findByStateCodeAndCountryCode(stateCode, countryCode)).thenReturn(null);
 
 		thrown.expect(EntityNotFoundException.class);
-		thrown.expectMessage(String.format("Country not found with Id : '%s'", countryId));
-		stateService.updateState(updatedState, countryId);
-
-	}
-
-	@Test
-	public void shouldDeleteStateWhenExistingStateIsDeletedInExistingCountry() {
-		long id = 2;
-		state.setId(id);
-		country.getStates().add(state);
-		Country updatedCountry = new Country();
-		updatedCountry.setId(countryId);
-		updatedCountry.setName(country.getName());
-		updatedCountry.setCountryCode(country.getCountryCode());
-		when(countryRepositoryMock.findOne(countryId)).thenReturn(country);
-
-		stateService.deleteState(state.getId(), countryId);
-
-		verify(countryRepositoryMock, times(1)).save(updatedCountry);
-	}
-
-	@Test
-	public void shouldReturnCountryExceptionWhenStateIsDeletedInUnexistingCountry() {
-		long id = 2;
-		state.setId(id);
-		when(countryRepositoryMock.findOne(countryId)).thenReturn(null);
-
-		thrown.expect(EntityNotFoundException.class);
-		thrown.expectMessage(String.format("Country not found with Id : '%s'", countryId));
-		stateService.deleteState(state.getId(), countryId);
-	}
-
-	@Test
-	public void shouldReturnStateExceptionWhenUnexistingStateIsDeletedInExistingCountry() {
-		long id = 2;
-		state.setId(id);
-		when(countryRepositoryMock.findOne(countryId)).thenReturn(country);
-
-		thrown.expect(EntityNotFoundException.class);
-		thrown.expectMessage(String.format("State not found with Id : '%s'", id));
-		stateService.deleteState(state.getId(), countryId);
+		thrown.expectMessage(String.format("State not found with StateCode : '%s'", unexistingStateCode));
+		stateService.deleteState(unexistingStateCode, countryCode);
 	}
 
 }

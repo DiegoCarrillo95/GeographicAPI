@@ -1,12 +1,12 @@
 package com.diego.geographicapi.service;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import java.util.ArrayList;
-
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.times;
+import java.util.List;
 
 import org.junit.Before;
 import org.junit.Rule;
@@ -21,7 +21,8 @@ import com.diego.geographicapi.exceptions.EntityNotFoundException;
 import com.diego.geographicapi.model.City;
 import com.diego.geographicapi.model.Country;
 import com.diego.geographicapi.model.State;
-import com.diego.geographicapi.repository.CountryRepository;
+import com.diego.geographicapi.repository.CityRepository;
+import com.diego.geographicapi.repository.StateRepository;
 import com.diego.geographicapi.service.implementation.CityServiceImpl;
 
 @RunWith(MockitoJUnitRunner.class)
@@ -31,15 +32,26 @@ public class CityServiceImplTest {
 	private CityServiceImpl cityService;
 
 	@Mock
-	private CountryRepository countryRepositoryMock;
+	private CityRepository cityRepositoryMock;
+
+	@Mock
+	private StateRepository stateRepositoryMock;
 
 	private Country country;
 	private State state;
 	private City city;
 
 	private final long countryId = 1;
+	private final String countryName = "Brasil";
+	private final String countryCode = "BR";
+
 	private final long stateId = 2;
+	private final String stateName = "Paraná";
+	private final String stateCode = "PR";
+
 	private final long cityId = 3;
+	private final String cityName = "Curitiba";
+	private final String cityCode = "CWB";
 
 	@Rule
 	public ExpectedException thrown = ExpectedException.none();
@@ -47,218 +59,133 @@ public class CityServiceImplTest {
 	@Before
 	public void setup() {
 		country = new Country();
-		country.setName("Brazil");
-		country.setCountryCode("BR");
+		country.setName(countryName);
+		country.setCountryCode(countryCode);
 		country.setId(countryId);
 
 		state = new State();
-		state.setName("Paraná");
-		state.setStateCode("PR");
+		state.setName(stateName);
+		state.setStateCode(stateCode);
 		state.setId(stateId);
 
-		country.getStates().add(state);
+		country.addState(state);
 
 		city = new City();
-		city.setName("Curitiba");
-		city.setCityCode("CWB");
-
-	}
-
-	@Test
-	public void shouldReturnCityIdWhenNewCityIsInsertedInExistingStateAndExistingCountry() {
-		City cityToReturn = new City();
-		cityToReturn.setId(cityId);
-		cityToReturn.setName(city.getName());
-		cityToReturn.setCityCode(city.getCityCode());
-		State stateWithCity = new State();
-		stateWithCity.setName(state.getName());
-		stateWithCity.setStateCode(state.getStateCode());
-		stateWithCity.setId(state.getId());
-		stateWithCity.getCities().add(cityToReturn);
-		Country countryWithState = new Country();
-		countryWithState.setName(country.getName());
-		countryWithState.setCountryCode(country.getCountryCode());
-		countryWithState.setId(country.getId());
-		countryWithState.getStates().add(stateWithCity);
-		when(countryRepositoryMock.findOne(country.getId())).thenReturn(country);
-		when(countryRepositoryMock.save(country)).thenReturn(countryWithState);
-
-		City cityReturned = cityService.insertCity(city, state.getId(), country.getId());
-
-		assertEquals(city, cityReturned);
-	}
-
-	@Test
-	public void shouldReturnCountryExceptionWhenNewCityIsInsertedInExistingStateAndUnexistingCountry() {
-
-		when(countryRepositoryMock.findOne(country.getId())).thenReturn(null);
-
-		thrown.expect(EntityNotFoundException.class);
-		thrown.expectMessage(String.format("Country not found with Id : '%s'", countryId));
-		cityService.insertCity(city, state.getId(), country.getId());
-	}
-
-	@Test
-	public void shouldReturnStateExceptionWhenNewCityIsInsertedInUnexistingStateAndExistingCountry() {
-
-		country.setStates(new ArrayList<>());
-		when(countryRepositoryMock.findOne(country.getId())).thenReturn(country);
-
-		thrown.expect(EntityNotFoundException.class);
-		thrown.expectMessage(String.format("State not found with Id : '%s'", stateId));
-		cityService.insertCity(city, state.getId(), country.getId());
-	}
-
-	@Test
-	public void shouldReturnCityWhenExistingCityIdAndExistingStateIdAndExistingCountryIdAreGiven() {
 		city.setId(cityId);
-		state.getCities().add(city);
-		when(countryRepositoryMock.findOne(country.getId())).thenReturn(country);
+		city.setName(cityName);
+		city.setCityCode(cityCode);
 
-		City returnedCity = cityService.getCityById(city.getId(), state.getId(), country.getId());
+		state.addCity(city);
+	}
+
+	@Test
+	public void shouldReturnInsertedCityWhenInsertCityMethodIsCalledWithNewCityAndExistingStateAndCountry() {
+		City insertedCity = new City();
+		insertedCity.setName(cityName);
+		insertedCity.setCityCode(cityCode);
+		when(stateRepositoryMock.findByStateCodeAndCountryCode(stateCode, countryCode)).thenReturn(state);
+		when(cityRepositoryMock.save(insertedCity)).thenReturn(city);
+
+		City returnedCity = cityService.insertCity(insertedCity, stateCode, countryCode);
 
 		assertEquals(city, returnedCity);
 	}
 
 	@Test
-	public void shouldReturnCountryExceptionWhenExistingCityIdAndExistingStateIdAndUnexistingCountryIdAreGiven() {
-		city.setId(cityId);
-		state.getCities().add(city);
-		when(countryRepositoryMock.findOne(country.getId())).thenReturn(null);
+	public void shouldReturnStateExceptionWhenInsertCityMethodIsCalledWithNewCityAndUnexistingStateAndCountry() {
+		String unexistingStateCode = "BB";
+		City insertedCity = new City();
+		when(stateRepositoryMock.findByStateCodeAndCountryCode(unexistingStateCode, countryCode)).thenReturn(null);
 
 		thrown.expect(EntityNotFoundException.class);
-		thrown.expectMessage(String.format("Country not found with Id : '%s'", countryId));
-		cityService.getCityById(city.getId(), state.getId(), country.getId());
+		thrown.expectMessage(String.format("State not found with StateCode : '%s'", unexistingStateCode));
+		cityService.insertCity(insertedCity, unexistingStateCode, countryCode);
 	}
 
 	@Test
-	public void shouldReturnStateExceptionWhenExistingCityIdAndUnexistingStateIdAndExistingCountryIdAreGiven() {
-		city.setId(cityId);
-		state.getCities().add(city);
-		country.setStates(new ArrayList<>());
-		when(countryRepositoryMock.findOne(country.getId())).thenReturn(country);
+	public void shouldReturnCityWhengGetCityByCityCodeMethodIsCalledWithExistingCity() {
+		when(cityRepositoryMock.findByCityCodeAndStateCodeAndCountryCode(cityCode, stateCode, countryCode))
+				.thenReturn(city);
 
-		thrown.expect(EntityNotFoundException.class);
-		thrown.expectMessage(String.format("State not found with Id : '%s'", stateId));
-		cityService.getCityById(city.getId(), state.getId(), country.getId());
+		City returnedCity = cityService.getCityByCityCode(cityCode, stateCode, countryCode);
+
+		assertEquals(city, returnedCity);
 	}
 
 	@Test
-	public void shouldReturnCityExceptionWhenUnexistingCityIdAndExistingStateIdAndExistingCountryIdAreGiven() {
-		city.setId(cityId);
-		when(countryRepositoryMock.findOne(country.getId())).thenReturn(country);
+	public void shouldReturnCityExceptionWhengGetCityByCityCodeMethodIsCalledWithUnexistingCity() {
+		String unexistingCityCode = "CCC";
+		when(cityRepositoryMock.findByCityCodeAndStateCodeAndCountryCode(unexistingCityCode, stateCode, countryCode))
+				.thenReturn(null);
 
 		thrown.expect(EntityNotFoundException.class);
-		thrown.expectMessage(String.format("City not found with Id : '%s'", cityId));
-		cityService.getCityById(city.getId(), state.getId(), country.getId());
-
+		thrown.expectMessage(String.format("City not found with CityCode : '%s'", unexistingCityCode));
+		cityService.getCityByCityCode(unexistingCityCode, stateCode, countryCode);
 	}
 
 	@Test
-	public void shouldUpdateCityWhenExistingCityAndExistingStateAndExistingCountryIsUpdated() {
-		city.setId(cityId);
-		state.getCities().add(city);
-		when(countryRepositoryMock.findOne(country.getId())).thenReturn(country);
+	public void shouldReturnCityListWhenGetAllCitiesByStateCodeAndCountryCodeMethodIsCalledWithExistingStateAndCountry() {
+		List<City> list = new ArrayList<>();
+		list.add(city);
+		when(cityRepositoryMock.findAllByStateCodeCountryCode(stateCode, countryCode)).thenReturn(list);
+		
+		List<City> returnedList = cityService.getAllCitiesByStateCodeAndCountryCode(stateCode, countryCode);
+		
+		assertEquals(list, returnedList);
+	}
+	
+	@Test
+	public void shouldReturnStateExceptionWhenGetAllCitiesByStateCodeAndCountryCodeMethodIsCalledWithUnexistingStateAndCountry() {
+		String unexistingStateCode = "BB";
+		when(cityRepositoryMock.findAllByStateCodeCountryCode(unexistingStateCode, countryCode)).thenReturn(null);
+		
+		thrown.expect(EntityNotFoundException.class);
+		thrown.expectMessage(String.format("State not found with StateCode : '%s'", unexistingStateCode));
+		cityService.getAllCitiesByStateCodeAndCountryCode(unexistingStateCode, countryCode);
+	}
+	
+	@Test
+	public void shouldReturnUpdatedCityWhenUpdateCityMethodIsCalledWithExistingCityAndStateAndCountry(){
 		City updatedCity = new City();
-		updatedCity.setName("Ponta Grossa");
-		updatedCity.setCityCode("PGR");
-		state.setCities(new ArrayList<>());
-		state.getCities().add(updatedCity);
-		when(countryRepositoryMock.save(country)).thenReturn(country);
-
-		cityService.updateCity(updatedCity, state.getId(), country.getId());
-
-		verify(countryRepositoryMock, times(1)).save(country);
+		updatedCity.setName("São Paulo");
+		updatedCity.setCityCode("SPO");
+		updatedCity.setState(city.getState());
+		when(cityRepositoryMock.findByCityCodeAndStateCodeAndCountryCode(cityCode, stateCode, countryCode)).thenReturn(city);
+		when(cityRepositoryMock.save(updatedCity)).thenReturn(updatedCity);
+		
+		City returnedCity = cityService.updateCity(updatedCity, cityCode, stateCode, countryCode);
+		
+		assertEquals(updatedCity, returnedCity);
 	}
-
+	
 	@Test
-	public void shouldReturnCountryExceptionWhenExistingCityAndExistingStateAndUnexistingCountryIsUpdated() {
+	public void shouldReturnCityExceptionWhenUpdateCityMethodIsCalledWithUnexistingCityAndStateAndCountry(){
+		String unexistingCityCode = "CCC";
 		City updatedCity = new City();
-		updatedCity.setName("Ponta Grossa");
-		updatedCity.setCityCode("PGR");
-		when(countryRepositoryMock.findOne(country.getId())).thenReturn(null);
+		when(cityRepositoryMock.findByCityCodeAndStateCodeAndCountryCode(unexistingCityCode, stateCode, countryCode)).thenReturn(null);
+		
+		thrown.expect(EntityNotFoundException.class);
+		thrown.expectMessage(String.format("City not found with CityCode : '%s'", unexistingCityCode));
+		cityService.updateCity(updatedCity, unexistingCityCode, stateCode, countryCode);
+	}
+	
+	@Test
+	public void shouldCallRepositoryDeletMethodWhenDeleteMethodIsCalledWithExistingCity() {
+		when(cityRepositoryMock.findByCityCodeAndStateCodeAndCountryCode(cityCode, stateCode, countryCode)).thenReturn(city);
+		
+		cityService.deleteCity(cityCode, stateCode, countryCode);
+		
+		verify(cityRepositoryMock, times(1)).delete(city);
+	}
+	
+	@Test
+	public void shouldReturnCityExceptionWhenDeleteCityMethodIsCalledWithUnexistingCityAndStateAndCountry(){
+		String unexistingCityCode = "CCC";
+		when(cityRepositoryMock.findByCityCodeAndStateCodeAndCountryCode(unexistingCityCode, unexistingCityCode, unexistingCityCode)).thenReturn(null);
 
 		thrown.expect(EntityNotFoundException.class);
-		thrown.expectMessage(String.format("Country not found with Id : '%s'", countryId));
-		cityService.updateCity(updatedCity, state.getId(), country.getId());
-	}
-
-	@Test
-	public void shouldReturnStateExceptionWhenExistingCityAndUnexistingStateAndExistingCountryIsUpdated() {
-		City updatedCity = new City();
-		updatedCity.setName("Ponta Grossa");
-		updatedCity.setCityCode("PGR");
-		country.setStates(new ArrayList<>());
-		when(countryRepositoryMock.findOne(country.getId())).thenReturn(country);
-
-		thrown.expect(EntityNotFoundException.class);
-		thrown.expectMessage(String.format("State not found with Id : '%s'", stateId));
-		cityService.updateCity(updatedCity, state.getId(), country.getId());
-	}
-
-	@Test
-	public void shouldReturnCityExceptionWhenUnexistingCityAndExistingStateAndExistingCountryIsUpdated() {
-		City updatedCity = new City();
-		updatedCity.setName("Ponta Grossa");
-		updatedCity.setCityCode("PGR");
-		when(countryRepositoryMock.findOne(country.getId())).thenReturn(country);
-
-		thrown.expect(EntityNotFoundException.class);
-		thrown.expectMessage(String.format("City not found with Id : '%s'", city.getId()));
-		cityService.updateCity(updatedCity, state.getId(), country.getId());
-	}
-
-	@Test
-	public void shouldDeleteCityWhenExistingCityInExistingStateInExistingCountryIsDeleted() {
-		city.setId(cityId);
-		state.getCities().add(city);
-		when(countryRepositoryMock.findOne(country.getId())).thenReturn(country);
-		State updatedState = new State();
-		updatedState.setId(state.getId());
-		updatedState.setName(state.getName());
-		updatedState.setStateCode(state.getStateCode());
-		Country updatedCountry = new Country();
-		updatedCountry.setId(country.getId());
-		updatedCountry.setName(country.getName());
-		updatedCountry.setCountryCode(country.getCountryCode());
-		updatedCountry.getStates().add(updatedState);
-
-		cityService.deleteCity(city.getId(), state.getId(), country.getId());
-
-		verify(countryRepositoryMock, times(1)).save(updatedCountry);
-	}
-
-	@Test
-	public void shouldReturnCountryExceptionWhenExistingCityInExistingStateInUnexistingCountryIsDeleted() {
-		city.setId(cityId);
-		state.getCities().add(city);
-		when(countryRepositoryMock.findOne(country.getId())).thenReturn(null);
-
-		thrown.expect(EntityNotFoundException.class);
-		thrown.expectMessage(String.format("Country not found with Id : '%s'", countryId));
-		cityService.deleteCity(city.getId(), state.getId(), country.getId());
-	}
-
-	@Test
-	public void shouldReturnStateExceptionWhenExistingCityInUnexistingStateInExistingCountryIsDeleted() {
-		city.setId(cityId);
-		state.getCities().add(city);
-		country.setStates(new ArrayList<>());
-		when(countryRepositoryMock.findOne(country.getId())).thenReturn(country);
-
-		thrown.expect(EntityNotFoundException.class);
-		thrown.expectMessage(String.format("State not found with Id : '%s'", stateId));
-		cityService.deleteCity(city.getId(), state.getId(), country.getId());
-	}
-
-	@Test
-	public void shouldReturnCityExceptionWhenUnexistingCityInExistingStateInExistingCountryIsDeleted() {
-		city.setId(cityId);
-		when(countryRepositoryMock.findOne(country.getId())).thenReturn(country);
-
-		thrown.expect(EntityNotFoundException.class);
-		thrown.expectMessage(String.format("City not found with Id : '%s'", cityId));
-		cityService.deleteCity(city.getId(), state.getId(), country.getId());
+		thrown.expectMessage(String.format("City not found with CityCode : '%s'", unexistingCityCode));
+		cityService.deleteCity(unexistingCityCode, stateCode, countryCode);
 	}
 
 }
