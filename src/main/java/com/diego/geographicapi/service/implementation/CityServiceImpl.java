@@ -34,10 +34,7 @@ public class CityServiceImpl implements CityService {
 
 		stateToUpdate.addCity(city);
 
-		stateRepository.save(stateToUpdate);
-
-		return cityRepository.findByCityCodeAndStateCodeAndCountryCode(city.getCityCode(), stateCode, countryCode);
-
+		return cityRepository.save(city);
 	}
 
 	@Override

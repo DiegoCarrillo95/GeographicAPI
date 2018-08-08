@@ -27,7 +27,7 @@ public class CountryServiceImpl implements CountryService {
 	@Override
 	public Country getCountryByCountryCode(String countryCode) {
 		Country countryReturned = countryRepository.findByCountryCode(countryCode);
-		if (countryReturned == null) {
+		if (countryReturned == null) { 
 			throw new EntityNotFoundException("Country", "CountryCode", countryCode);
 		}
 		
