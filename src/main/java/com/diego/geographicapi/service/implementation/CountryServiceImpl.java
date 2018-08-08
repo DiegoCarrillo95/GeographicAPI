@@ -48,7 +48,7 @@ public class CountryServiceImpl implements CountryService {
 			throw new EntityNotFoundException("Country", "CountryCode", countryCode);
 		}
 		
-		BeanUtils.copyProperties(updatedCountry, currentCountry, "id");
+		BeanUtils.copyProperties(updatedCountry, currentCountry, "id", "states");
 
 		return countryRepository.save(currentCountry);
 	}

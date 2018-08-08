@@ -2,6 +2,7 @@ package com.diego.geographicapi.service.implementation;
 
 import java.util.List;
 
+import org.springframework.beans.BeanUtils;
 import org.springframework.stereotype.Service;
 
 import com.diego.geographicapi.exceptions.EntityNotFoundException;
@@ -58,15 +59,27 @@ public class StateServiceImpl implements StateService {
 	}
 
 	@Override
-	public State updateState(State state, String countryCode) {
-		// TODO Auto-generated method stub
-		return null;
+	public State updateState(State updatedState, String stateCode, String countryCode) {
+		State currentState = stateRepository.findByStateCodeAndCountryCode(stateCode, countryCode);
+		
+		if(currentState == null) {
+			throw new EntityNotFoundException("State", "StateCode", stateCode);
+		}
+		
+		BeanUtils.copyProperties(updatedState, currentState, "id", "country", "cities");
+
+		return stateRepository.save(currentState);
 	}
 
 	@Override
 	public void deleteState(String stateCode, String countryCode) {
-		// TODO Auto-generated method stub
+		State stateToDelete = stateRepository.findByStateCodeAndCountryCode(stateCode, countryCode);
 		
+		if(stateToDelete == null) {
+			throw new EntityNotFoundException("State", "StateCode", stateCode);
+		}
+		
+		stateRepository.delete(stateToDelete);
 	}
 	
 }

@@ -51,13 +51,20 @@ public class CountryFacade {
 	}
 
 	public CountryDto updateCountry(String countryCode, CountryDto countryDto) {
-		return Transformer.countryModelToDtoTransformer(
-				countryService.updateCountry(countryCode, Transformer.countryDtoToModelTransformer(countryDto)));
+		try {
+			return Transformer.countryModelToDtoTransformer(
+					countryService.updateCountry(countryCode, Transformer.countryDtoToModelTransformer(countryDto)));
+		} catch (EntityNotFoundException e) {
+			throw new ResourceNotFoundException(e.getResourceName(), e.getFieldName(), e.getFieldValue());
+		}
 	}
 
 	public void deleteCountry(String countryCode) {
-		Country country = countryService.getCountryByCountryCode(countryCode);
-		countryService.deleteCountry(country.getCountryCode());
+		try {
+			countryService.deleteCountry(countryCode);
+		} catch (EntityNotFoundException e) {
+			throw new ResourceNotFoundException(e.getResourceName(), e.getFieldName(), e.getFieldValue());
+		}
 	}
 
 }

@@ -50,7 +50,7 @@ public class CountryStateController {
 			@PathVariable(value = "state_code") String stateCode,
 			@Valid @RequestBody StateDto stateDto) {
 
-		return countryStateFacade.updateState(stateCode, stateDto, countryCode);
+		return countryStateFacade.updateState(stateDto, stateCode, countryCode);
 	}
 	
 	@DeleteMapping("/{state_code}")

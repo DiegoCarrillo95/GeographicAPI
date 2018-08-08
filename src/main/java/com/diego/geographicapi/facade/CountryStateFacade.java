@@ -49,12 +49,19 @@ public class CountryStateFacade {
 		}
 	}
 
-	public StateDto updateState(String stateCode, StateDto stateDto, String countryCode) {
-		// TODO:
-		return null;
+	public StateDto updateState (StateDto stateDto, String stateCode, String countryCode) {
+		try {
+			return Transformer.stateModelToDtoTransformer(stateService.updateState(Transformer.stateDtoToModelTransformer(stateDto), stateCode, countryCode));
+		} catch (EntityNotFoundException e) {
+			throw new ResourceNotFoundException(e.getResourceName(), e.getFieldName(), e.getFieldValue());
+		}
 	}
 
 	public void deleteState(String stateCode, String countryCode) {
-		// TODO:
+		try {
+			stateService.deleteState(stateCode, countryCode);
+		} catch (EntityNotFoundException e) {
+			throw new ResourceNotFoundException(e.getResourceName(), e.getFieldName(), e.getFieldValue());
+		}
 	}
 }

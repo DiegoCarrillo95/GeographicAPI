@@ -48,4 +48,21 @@ public class CountryStateCityFacade {
 			throw new ResourceNotFoundException(e.getResourceName(), e.getFieldName(), e.getFieldValue());
 		}
 	}
+
+	public CityDto updateCity(CityDto cityDto, String cityCode, String stateCode, String countryCode) {
+		try {
+			return Transformer.cityModelToDtoTransformer(cityService
+					.updateCity(Transformer.cityDtoToModelTransformer(cityDto), cityCode, stateCode, countryCode));
+		} catch (EntityNotFoundException e) {
+			throw new ResourceNotFoundException(e.getResourceName(), e.getFieldName(), e.getFieldValue());
+		}
+	}
+
+	public void deleteCity(String cityCode, String stateCode, String countryCode) {
+		try {
+			cityService.deleteCity(cityCode, stateCode, countryCode);
+		} catch (EntityNotFoundException e) {
+			throw new ResourceNotFoundException(e.getResourceName(), e.getFieldName(), e.getFieldValue());
+		}
+	}
 }
