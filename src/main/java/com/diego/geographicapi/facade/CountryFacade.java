@@ -22,23 +22,18 @@ public class CountryFacade {
 	}
 
 	public CountryDto insertCountry(CountryDto countryDto) {
-		Country country = countryService.insertCountry(Transformer.countryDtoToModelTransformer(countryDto));
-		countryDto.setId(country.getId());
-		return countryDto;
+		return Transformer.countryModelToDtoTransformer(
+				countryService.insertCountry(Transformer.countryDtoToModelTransformer(countryDto)));
 	}
 
 	public List<CountryDto> getAllCountries() {
-		try {
-			List<CountryDto> countryDtos = new ArrayList<>();
+		List<CountryDto> countryDtos = new ArrayList<>();
 
-			for (Country country : countryService.getAllCountries()) {
-				countryDtos.add(Transformer.countryModelToDtoTransformer(country));
-			}
-
-			return countryDtos;
-		} catch (EntityNotFoundException e) {
-			throw new ResourceNotFoundException(e.getResourceName(), e.getFieldName(), e.getFieldValue());
+		for (Country country : countryService.getAllCountries()) {
+			countryDtos.add(Transformer.countryModelToDtoTransformer(country));
 		}
+
+		return countryDtos;
 	}
 
 	public CountryDto getCountry(String countryCode) {
