@@ -3,7 +3,9 @@ package com.diego.geographicapi.facade;
 import static org.junit.Assert.assertEquals;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.verify;
+
 
 import java.util.ArrayList;
 import java.util.List;
@@ -19,6 +21,7 @@ import org.mockito.runners.MockitoJUnitRunner;
 
 import com.diego.geographicapi.dto.CountryDto;
 import com.diego.geographicapi.exceptions.EntityNotFoundException;
+import com.diego.geographicapi.exceptions.ResourceNotFoundException;
 import com.diego.geographicapi.model.Country;
 import com.diego.geographicapi.service.CountryService;
 
@@ -31,101 +34,108 @@ public class CountryFacadeTest {
 	@Mock
 	private CountryService countryService;
 
-	final long id1 = 1;
-	final long id2 = 2;
+	private Country country = new Country();
 
-	Country country1 = new Country();
-	Country country2 = new Country();
-	List<Country> countryList = new ArrayList<>();
+	private CountryDto countryDto = new CountryDto();
 
-	CountryDto countryDto1 = new CountryDto();
-	CountryDto countryDto2 = new CountryDto();
-	List<CountryDto> countryDtoList = new ArrayList<>();
+	private final long countryId = 1;
+	private final String countryName = "Brazil";
+	private final String countryCode = "BR";
+
+	private final String unexistingCountryCode = "AA";
+	private final String resourceName = "Country";
+	private final String fieldName = "CountryCode";
 
 	@Rule
 	public ExpectedException thrown = ExpectedException.none();
 
 	@Before
-	public void init() {
-		country1.setId(id1);
-		country1.setName("Brazil");
-		country1.setCountryCode("BR");
-		country2.setId(id2);
-		country2.setName("Mexico");
-		country2.setCountryCode("MX");
-		countryList.add(country1);
-		countryList.add(country2);
+	public void setup() {
+		country.setId(countryId);
+		country.setName(countryName);
+		country.setCountryCode(countryCode);
 
-		countryDto1.setId(id1);
-		countryDto1.setName("Brazil");
-		countryDto1.setCountryCode("BR");
-		countryDto2.setId(id2);
-		countryDto2.setName("Mexico");
-		countryDto2.setCountryCode("MX");
-		countryDtoList.add(countryDto1);
-		countryDtoList.add(countryDto2);
+		countryDto.setId(countryId);
+		countryDto.setName(countryName);
+		countryDto.setCountryCode(countryCode);
 	}
 
 	@Test
-	public void shouldReturnCountryDtoWithIdWhenInsertCountryMethodIsCalledWithNewCountryDto() {
-		Country insertedCountry = new Country();
-		insertedCountry.setName("Brazil");
-		insertedCountry.setCountryCode("BR");
-		CountryDto insertedCountryDto = new CountryDto();
-		insertedCountryDto.setName(insertedCountry.getName());
-		insertedCountryDto.setCountryCode(insertedCountry.getCountryCode());
-		when(countryService.insertCountry(insertedCountry)).thenReturn(country1);
+	public void shouldReturnInsertedCountryDtoWhenInsertCountryMethodIsCalledWithCountryDto() {
+		when(countryService.insertCountry(country)).thenReturn(country);
 
-		CountryDto returnedCountryDto = countryFacade.insertCountry(insertedCountryDto);
+		CountryDto insertedCountry = countryFacade.insertCountry(countryDto);
 
-		assertEquals((Long) id1, returnedCountryDto.getId());
-		assertEquals(insertedCountry.getName(), returnedCountryDto.getName());
-		assertEquals(insertedCountry.getCountryCode(), returnedCountryDto.getCountryCode());
+		assertEquals(countryDto, insertedCountry);
 	}
 
 	@Test
 	public void shouldReturnCountryDtoListWhenGetAllCountriesMethodIsCalled() {
-		when(countryService.getAllCountries()).thenReturn(countryList);
+		List<Country> list = new ArrayList<>();
+		list.add(country);
+		when(countryService.getAllCountries()).thenReturn(list);
 
-		List<CountryDto> listReturned = countryFacade.getAllCountries();
+		List<CountryDto> returnedList = countryFacade.getAllCountries();
 
-		assertEquals(countryDtoList, listReturned);
+		assertEquals(countryId, (long) returnedList.get(0).getId());
+		assertEquals(countryCode, returnedList.get(0).getCountryCode());
 	}
 
 	@Test
-	public void shouldReturnCountryDtoWhenGetCountryIsCalledWithExistingId() {
-		when(countryService.getCountryByCountryCode("BR")).thenReturn(country1);
+	public void shouldReturnCountryDtoWhenGetCountryMethodIsCalledWithExistingCountry() {
+		when(countryService.getCountryByCountryCode(countryCode)).thenReturn(country);
 
-		CountryDto countryReturned = countryFacade.getCountry("BR");
+		CountryDto returnedCountry = countryFacade.getCountry(countryCode);
 
-		assertEquals(countryDto1, countryReturned);
+		assertEquals(countryDto, returnedCountry);
 	}
 
 	@Test
-	public void shouldReturnCountryExceptionWhenGetCountryIsCalledWithUnexistingId() {
-		String unexistingCountryCode = "AB";
-		when(countryService.getCountryByCountryCode(unexistingCountryCode)).thenThrow(new EntityNotFoundException("Country", "CountryCode", unexistingCountryCode));
+	public void shouldReturnCountryDtoExceptionWhenGetCountryMethodIsCalledWithUnexistingCountry() {
+		when(countryService.getCountryByCountryCode(unexistingCountryCode))
+				.thenThrow(new EntityNotFoundException(resourceName, fieldName, unexistingCountryCode));
 
-		thrown.expect(EntityNotFoundException.class);
-		thrown.expectMessage(String.format("Country not found with CountryCode : '%s'", unexistingCountryCode));
+		thrown.expect(ResourceNotFoundException.class);
+		thrown.expectMessage(
+				String.format("%s not found with %s: '%s'", resourceName, fieldName, unexistingCountryCode));
 		countryFacade.getCountry(unexistingCountryCode);
 	}
 
 	@Test
-	public void shouldCallUpdateCountryServiceWhenUpdateCountryisCalledWithExistingId() {
-		when(countryService.updateCountry(country1.getCountryCode(), country1)).thenReturn(country1);
-		
-		countryFacade.updateCountry(countryDto1.getCountryCode(), countryDto1);
+	public void shouldReturnCountryDtoWhenUpdateCountryMethodIsCalledWithExistingCountry() {
+		when(countryService.updateCountry(countryCode, country)).thenReturn(country);
 
-		verify(countryService, times(1)).updateCountry(country1.getCountryCode(), country1);
+		CountryDto returnedCountry = countryFacade.updateCountry(countryCode, countryDto);
+
+		assertEquals(countryDto, returnedCountry);
 	}
 
 	@Test
-	public void shouldCallDeleteCountryServiceWhenDeleteCountryIsCalledWithExistingId() {
-		when(countryService.getCountryByCountryCode(countryDto1.getCountryCode())).thenReturn(country1);
-		
-		countryFacade.deleteCountry(countryDto1.getCountryCode());
+	public void shouldReturnCountryDtoExceptionWhenUpdateCountryMethodIsCalledWithUnexistingCountry() {
+		when(countryService.updateCountry(unexistingCountryCode, country))
+				.thenThrow(new EntityNotFoundException(resourceName, fieldName, unexistingCountryCode));
 
-		verify(countryService, times(1)).deleteCountry(country1.getId());
+		thrown.expect(ResourceNotFoundException.class);
+		thrown.expectMessage(
+				String.format("%s not found with %s: '%s'", resourceName, fieldName, unexistingCountryCode));
+		countryFacade.updateCountry(unexistingCountryCode, countryDto);
 	}
+
+	@Test
+	public void shouldCallServiceDeleteCountryWhenDeleteCountryMethodIsCalledWithExistingCountry() {
+		countryFacade.deleteCountry(countryCode);
+
+		verify(countryService, times(1)).deleteCountry(countryCode);
+	}
+
+	@Test
+	public void shouldReturnCountryDtoExceptionWhenDeleteCountryMethodIsCalledWithUnexistingCountry() {
+		doThrow(new EntityNotFoundException(resourceName, fieldName, unexistingCountryCode)).when(countryService).deleteCountry(unexistingCountryCode);
+				
+		thrown.expect(ResourceNotFoundException.class);
+		thrown.expectMessage(
+				String.format("%s not found with %s: '%s'", resourceName, fieldName, unexistingCountryCode));
+		countryFacade.deleteCountry(unexistingCountryCode);
+	}
+
 }
