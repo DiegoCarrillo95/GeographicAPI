@@ -26,11 +26,8 @@ public class CityServiceImpl implements CityService {
 
 	@Override
 	public City insertCity(City city, String stateCode, String countryCode) {
-		State stateToUpdate = stateRepository.findByStateCodeAndCountryCode(stateCode, countryCode);
-
-		if (stateToUpdate == null) {
-			throw new EntityNotFoundException("State", "StateCode", stateCode);
-		}
+		State stateToUpdate = stateRepository.findByStateCodeAndCountryCode(stateCode, countryCode)
+				.orElseThrow(() -> new EntityNotFoundException("State", "StateCode", stateCode));
 
 		stateToUpdate.addCity(city);
 
@@ -39,33 +36,20 @@ public class CityServiceImpl implements CityService {
 
 	@Override
 	public City getCityByCityCode(String cityCode, String stateCode, String countryCode) {
-		City city = cityRepository.findByCityCodeAndStateCodeAndCountryCode(cityCode, stateCode, countryCode);
-
-		if (city == null) {
-			throw new EntityNotFoundException("City", "CityCode", cityCode);
-		}
-
-		return city;
+		return cityRepository.findByCityCodeAndStateCodeAndCountryCode(cityCode, stateCode, countryCode)
+				.orElseThrow(() -> new EntityNotFoundException("City", "CityCode", cityCode));
 	}
 
 	@Override
 	public List<City> getAllCitiesByStateCodeAndCountryCode(String stateCode, String countryCode) {
-		List<City> cities = cityRepository.findAllByStateCodeCountryCode(stateCode, countryCode);
-
-		if (cities == null) {
-			throw new EntityNotFoundException("State", "StateCode", stateCode);
-		}
-
-		return cities;
+		return cityRepository.findAllByStateCodeCountryCode(stateCode, countryCode)
+				.orElseThrow(() -> new EntityNotFoundException("State", "StateCode", stateCode));
 	}
 
 	@Override
 	public City updateCity(City updatedCity, String cityCode, String stateCode, String countryCode) {
-		City currentCity = cityRepository.findByCityCodeAndStateCodeAndCountryCode(cityCode, stateCode, countryCode);
-
-		if (currentCity == null) {
-			throw new EntityNotFoundException("City", "CityCode", cityCode);
-		}
+		City currentCity = cityRepository.findByCityCodeAndStateCodeAndCountryCode(cityCode, stateCode, countryCode)
+				.orElseThrow(() -> new EntityNotFoundException("City", "CityCode", cityCode));
 
 		BeanUtils.copyProperties(updatedCity, currentCity, "id", "state");
 
@@ -74,12 +58,7 @@ public class CityServiceImpl implements CityService {
 
 	@Override
 	public void deleteCity(String cityCode, String stateCode, String countryCode) {
-		City cityToDelete = cityRepository.findByCityCodeAndStateCodeAndCountryCode(cityCode, stateCode, countryCode);
-
-		if (cityToDelete == null) {
-			throw new EntityNotFoundException("City", "CityCode", cityCode);
-		}
-		
-		cityRepository.delete(cityToDelete);
+		cityRepository.delete(cityRepository.findByCityCodeAndStateCodeAndCountryCode(cityCode, stateCode, countryCode)
+				.orElseThrow(() -> new EntityNotFoundException("City", "CityCode", cityCode)));
 	}
 }

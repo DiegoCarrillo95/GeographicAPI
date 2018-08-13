@@ -7,6 +7,7 @@ import static org.mockito.Mockito.when;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
 import org.junit.Before;
 import org.junit.Rule;
@@ -32,6 +33,7 @@ public class CountryServiceImplTest {
 	private CountryRepository countryRepositoryMock;
 
 	private Country country;
+	private Optional<Country> optionalCountry;
 
 	private final long countryId = 1;
 	private final String countryName = "Brazil";
@@ -40,12 +42,13 @@ public class CountryServiceImplTest {
 	@Rule
 	public ExpectedException thrown = ExpectedException.none();
 
-	@Before
+	@Before 
 	public void setup() {
 		country = new Country();
 		country.setId(countryId);
 		country.setName(countryName);
 		country.setCountryCode(countryCode);
+		optionalCountry = Optional.of(country);
 	}
 	
 	@Test
@@ -55,14 +58,14 @@ public class CountryServiceImplTest {
 		insertedCountry.setCountryCode(countryCode);
 		when(countryRepositoryMock.save(insertedCountry)).thenReturn(country);
 		
-		countryService.insertCountry(country);
+		insertedCountry = countryService.insertCountry(country);
 
 		assertEquals(country, insertedCountry);
 	}
 	
 	@Test
 	public void shouldReturnCountryWhenGetCountryByCountryCodeMethodIsCalledWithExistingCountry() {
-		when(countryRepositoryMock.findByCountryCode(countryCode)).thenReturn(country);
+		when(countryRepositoryMock.findByCountryCode(countryCode)).thenReturn(optionalCountry);
 		
 		Country returnedCountry = countryService.getCountryByCountryCode(countryCode);
 
@@ -72,7 +75,7 @@ public class CountryServiceImplTest {
 	@Test
 	public void shouldReturnCountryExceptionWhenGetCountryByCountryCodeMethodIsCalledWithUnexistingCountry() {
 		String unexistingCountryCode = "AA";
-		when(countryRepositoryMock.findByCountryCode(unexistingCountryCode)).thenReturn(null);
+		when(countryRepositoryMock.findByCountryCode(unexistingCountryCode)).thenReturn(Optional.ofNullable(null));
 		
 		thrown.expect(EntityNotFoundException.class);
 		thrown.expectMessage(String.format("Country not found with CountryCode : '%s'", unexistingCountryCode));
@@ -95,7 +98,7 @@ public class CountryServiceImplTest {
 		Country updatedCountry = new Country();
 		updatedCountry.setName("Argentina");
 		updatedCountry.setCountryCode("AR");
-		when(countryRepositoryMock.findByCountryCode(countryCode)).thenReturn(country);
+		when(countryRepositoryMock.findByCountryCode(countryCode)).thenReturn(optionalCountry);
 		when(countryRepositoryMock.save(updatedCountry)).thenReturn(updatedCountry);
 		
 		Country returnedCountry = countryService.updateCountry(countryCode, updatedCountry);
@@ -107,7 +110,7 @@ public class CountryServiceImplTest {
 	public void shouldReturnCountryExceptionWhenUpdateCountryMethodIsCalledWithUnexistingCountryCode(){
 		String unexistingCountryCode = "AA";
 		Country updatedCountry = new Country();
-		when(countryRepositoryMock.findByCountryCode(unexistingCountryCode)).thenReturn(null);
+		when(countryRepositoryMock.findByCountryCode(unexistingCountryCode)).thenReturn(Optional.ofNullable(null));
 	
 		thrown.expect(EntityNotFoundException.class);
 		thrown.expectMessage(String.format("Country not found with CountryCode : '%s'", unexistingCountryCode));
@@ -116,7 +119,7 @@ public class CountryServiceImplTest {
 	
 	@Test
 	public void shloudCallRepositoryDeletMethodWhenDeleteMethodIsCalledWithExistingCountry() {
-		when(countryRepositoryMock.findByCountryCode(countryCode)).thenReturn(country);
+		when(countryRepositoryMock.findByCountryCode(countryCode)).thenReturn(optionalCountry);
 		
 		countryService.deleteCountry(countryCode);
 		
@@ -126,7 +129,7 @@ public class CountryServiceImplTest {
 	@Test
 	public void shouldReturnCountryExceptionWhenDeleteCountryMethodIsCalledWithUnexistingCountryCode(){
 		String unexistingCountryCode = "AA";
-		when(countryRepositoryMock.findByCountryCode(unexistingCountryCode)).thenReturn(null);
+		when(countryRepositoryMock.findByCountryCode(unexistingCountryCode)).thenReturn(Optional.ofNullable(null));
 	
 		thrown.expect(EntityNotFoundException.class);
 		thrown.expectMessage(String.format("Country not found with CountryCode : '%s'", unexistingCountryCode));

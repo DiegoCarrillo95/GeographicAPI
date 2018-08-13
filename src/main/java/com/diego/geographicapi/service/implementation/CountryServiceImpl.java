@@ -14,7 +14,7 @@ import com.diego.geographicapi.service.CountryService;
 public class CountryServiceImpl implements CountryService {
 
 	private final CountryRepository countryRepository;
-	
+
 	public CountryServiceImpl(CountryRepository countryRepository) {
 		this.countryRepository = countryRepository;
 	}
@@ -23,31 +23,23 @@ public class CountryServiceImpl implements CountryService {
 	public Country insertCountry(Country country) {
 		return countryRepository.save(country);
 	}
-	
+
 	@Override
 	public Country getCountryByCountryCode(String countryCode) {
-		Country countryReturned = countryRepository.findByCountryCode(countryCode);
-		if (countryReturned == null) { 
-			throw new EntityNotFoundException("Country", "CountryCode", countryCode);
-		}
-		
-		return countryReturned;
+		return countryRepository.findByCountryCode(countryCode)
+				.orElseThrow(() -> new EntityNotFoundException("Country", "CountryCode", countryCode));
 	}
 
 	@Override
 	public List<Country> getAllCountries() {
 		return countryRepository.findAll();
 	}
-	
+
 	@Override
 	public Country updateCountry(String countryCode, Country updatedCountry) {
-		
-		Country currentCountry = countryRepository.findByCountryCode(countryCode);
-		
-		if(currentCountry == null) {
-			throw new EntityNotFoundException("Country", "CountryCode", countryCode);
-		}
-		
+		Country currentCountry = countryRepository.findByCountryCode(countryCode)
+				.orElseThrow(() -> new EntityNotFoundException("Country", "CountryCode", countryCode));
+
 		BeanUtils.copyProperties(updatedCountry, currentCountry, "id", "states");
 
 		return countryRepository.save(currentCountry);
@@ -55,14 +47,8 @@ public class CountryServiceImpl implements CountryService {
 
 	@Override
 	public void deleteCountry(String countryCode) {
-		Country countryToDelete = countryRepository.findByCountryCode(countryCode);
-		if(countryToDelete == null) {
-			throw new EntityNotFoundException("Country", "CountryCode", countryCode);
-		}
-		
-		countryRepository.delete(countryToDelete);
-
+		countryRepository.delete(countryRepository.findByCountryCode(countryCode)
+				.orElseThrow(() -> new EntityNotFoundException("Country", "CountryCode", countryCode)));
 	}
-
 
 }

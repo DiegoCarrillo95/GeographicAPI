@@ -7,6 +7,7 @@ import static org.mockito.Mockito.when;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
 import org.junit.Before;
 import org.junit.Rule;
@@ -38,6 +39,8 @@ public class StateServiceImplTest {
 
 	private State state;
 	private Country country;
+	private Optional<State> optionalState;
+	private Optional<Country> optionalCountry;
 	
 	private final long stateId = 2;
 	private final String stateName = "Paraná";
@@ -56,12 +59,14 @@ public class StateServiceImplTest {
 		state.setId(stateId);
 		state.setName(stateName);
 		state.setStateCode(stateCode);
+		optionalState = Optional.of(state);
 		
 		country = new Country();
 		country.setId(countryId);
 		country.setName(countryName);
 		country.setCountryCode(countryCode);
 		country.addState(state);
+		optionalCountry = Optional.of(country);
 	}
 	
 	@Test
@@ -70,7 +75,7 @@ public class StateServiceImplTest {
 		insertedState.setName(stateName);
 		insertedState.setStateCode(stateCode);
 		when(stateRepositoryMock.save(insertedState)).thenReturn(state);
-		when(countryRepositoryMock.findByCountryCode(countryCode)).thenReturn(country);
+		when(countryRepositoryMock.findByCountryCode(countryCode)).thenReturn(optionalCountry);
 		
 		stateService.insertState(insertedState, countryCode);
 
@@ -81,7 +86,7 @@ public class StateServiceImplTest {
 	public void shouldReturnCountryExceptionWhenInsertStateMethodIsCalledWithNewStateAndUnexistingCountry() {
 		State insertedState = new State();
 		String unexistingCountryCode = "AA";
-		when(countryRepositoryMock.findByCountryCode(countryCode)).thenReturn(null);
+		when(countryRepositoryMock.findByCountryCode(unexistingCountryCode)).thenReturn(Optional.ofNullable(null));
 		
 		thrown.expect(EntityNotFoundException.class);
 		thrown.expectMessage(String.format("Country not found with CountryCode : '%s'", unexistingCountryCode));
@@ -90,7 +95,7 @@ public class StateServiceImplTest {
 	
 	@Test
 	public void shouldReturnStateWhenGetStateByStateCodeWithExistingStateAndCountry() {
-		when(stateRepositoryMock.findByStateCodeAndCountryCode(stateCode, countryCode)).thenReturn(state);
+		when(stateRepositoryMock.findByStateCodeAndCountryCode(stateCode, countryCode)).thenReturn(optionalState);
 		
 		State returnedState = stateService.getStateByStateCode(stateCode, countryCode);
 		
@@ -100,7 +105,7 @@ public class StateServiceImplTest {
 	@Test
 	public void shouldReturnStateExceptionWhenGetStateByStateCodeWithUnexistingStateAndCountry() {
 		String unexistingStateCode = "BB";
-		when(stateRepositoryMock.findByStateCodeAndCountryCode(unexistingStateCode, countryCode)).thenReturn(null);
+		when(stateRepositoryMock.findByStateCodeAndCountryCode(unexistingStateCode, countryCode)).thenReturn(Optional.ofNullable(null));
 		
 		thrown.expect(EntityNotFoundException.class);
 		thrown.expectMessage(String.format("State not found with StateCode : '%s'", unexistingStateCode));
@@ -111,7 +116,8 @@ public class StateServiceImplTest {
 	public void shouldReturnStatesListWhenGetAllStatesByCountryCodeMethodIsCalledWithExistingCountry() {
 		List<State> list = new ArrayList<>();
 		list.add(state);
-		when(stateRepositoryMock.findAllByCountryCode(countryCode)).thenReturn(list);
+		Optional<List<State>> optionalList = Optional.of(list);
+		when(stateRepositoryMock.findAllByCountryCode(countryCode)).thenReturn(optionalList);
 		
 		List<State> returnedList = stateService.getAllStatesByCountryCode(countryCode);
 		
@@ -121,7 +127,7 @@ public class StateServiceImplTest {
 	@Test
 	public void shouldReturnCountryExceptionWhenGetAllStatesByCountryCodeMethodIsCalledWithUnexistingCountry() {
 		String unexistingCountryCode = "AA";
-		when(stateRepositoryMock.findAllByCountryCode(unexistingCountryCode)).thenReturn(null);
+		when(stateRepositoryMock.findAllByCountryCode(unexistingCountryCode)).thenReturn(Optional.ofNullable(null));
 		
 		thrown.expect(EntityNotFoundException.class);
 		thrown.expectMessage(String.format("Country not found with CountryCode : '%s'", unexistingCountryCode));
@@ -134,7 +140,7 @@ public class StateServiceImplTest {
 		updatedState.setName("Santa Catarina");
 		updatedState.setStateCode("SC");
 		updatedState.setCountry(state.getCountry());
-		when(stateRepositoryMock.findByStateCodeAndCountryCode(stateCode, countryCode)).thenReturn(state);
+		when(stateRepositoryMock.findByStateCodeAndCountryCode(stateCode, countryCode)).thenReturn(optionalState);
 		when(stateRepositoryMock.save(updatedState)).thenReturn(updatedState);
 		
 		State returnedState = stateService.updateState(updatedState, stateCode, countryCode);
@@ -146,7 +152,7 @@ public class StateServiceImplTest {
 	public void shouldReturnStateExceptionWhenUpdateStateMethodIsCalledWithUnexistingStateAndCountry(){
 		String unexistingStateCode = "BB";
 		State updatedState = new State();
-		when(stateRepositoryMock.findByStateCodeAndCountryCode(stateCode, countryCode)).thenReturn(null);
+		when(stateRepositoryMock.findByStateCodeAndCountryCode(unexistingStateCode, countryCode)).thenReturn(Optional.ofNullable(null));
 
 		thrown.expect(EntityNotFoundException.class);
 		thrown.expectMessage(String.format("State not found with StateCode : '%s'", unexistingStateCode));
@@ -155,7 +161,7 @@ public class StateServiceImplTest {
 	
 	@Test
 	public void shouldCallRepositoryDeletMethodWhenDeleteMethodIsCalledWithExistingState() {
-		when(stateRepositoryMock.findByStateCodeAndCountryCode(stateCode, countryCode)).thenReturn(state);
+		when(stateRepositoryMock.findByStateCodeAndCountryCode(stateCode, countryCode)).thenReturn(optionalState);
 		
 		stateService.deleteState(stateCode, countryCode);
 		
@@ -165,7 +171,7 @@ public class StateServiceImplTest {
 	@Test
 	public void shouldReturnStateExceptionWhenDeleteStateMethodIsCalledWithUnexistingStateAndCountry(){
 		String unexistingStateCode = "BB";
-		when(stateRepositoryMock.findByStateCodeAndCountryCode(stateCode, countryCode)).thenReturn(null);
+		when(stateRepositoryMock.findByStateCodeAndCountryCode(unexistingStateCode, countryCode)).thenReturn(Optional.ofNullable(null));
 
 		thrown.expect(EntityNotFoundException.class);
 		thrown.expectMessage(String.format("State not found with StateCode : '%s'", unexistingStateCode));

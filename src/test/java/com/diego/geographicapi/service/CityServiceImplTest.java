@@ -7,6 +7,7 @@ import static org.mockito.Mockito.when;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
 import org.junit.Before;
 import org.junit.Rule;
@@ -41,6 +42,9 @@ public class CityServiceImplTest {
 	private State state;
 	private City city;
 
+	private Optional<State> optionalState;
+	private Optional<City> optionalCity;
+
 	private final long countryId = 1;
 	private final String countryName = "Brasil";
 	private final String countryCode = "BR";
@@ -69,6 +73,7 @@ public class CityServiceImplTest {
 		state.setId(stateId);
 
 		country.addState(state);
+		optionalState = Optional.of(state);
 
 		city = new City();
 		city.setId(cityId);
@@ -76,6 +81,7 @@ public class CityServiceImplTest {
 		city.setCityCode(cityCode);
 
 		state.addCity(city);
+		optionalCity = Optional.of(city);
 	}
 
 	@Test
@@ -83,7 +89,7 @@ public class CityServiceImplTest {
 		City insertedCity = new City();
 		insertedCity.setName(cityName);
 		insertedCity.setCityCode(cityCode);
-		when(stateRepositoryMock.findByStateCodeAndCountryCode(stateCode, countryCode)).thenReturn(state);
+		when(stateRepositoryMock.findByStateCodeAndCountryCode(stateCode, countryCode)).thenReturn(optionalState);
 		when(cityRepositoryMock.save(insertedCity)).thenReturn(city);
 
 		City returnedCity = cityService.insertCity(insertedCity, stateCode, countryCode);
@@ -95,7 +101,8 @@ public class CityServiceImplTest {
 	public void shouldReturnStateExceptionWhenInsertCityMethodIsCalledWithNewCityAndUnexistingStateAndCountry() {
 		String unexistingStateCode = "BB";
 		City insertedCity = new City();
-		when(stateRepositoryMock.findByStateCodeAndCountryCode(unexistingStateCode, countryCode)).thenReturn(null);
+		when(stateRepositoryMock.findByStateCodeAndCountryCode(unexistingStateCode, countryCode))
+				.thenReturn(Optional.ofNullable(null));
 
 		thrown.expect(EntityNotFoundException.class);
 		thrown.expectMessage(String.format("State not found with StateCode : '%s'", unexistingStateCode));
@@ -105,7 +112,7 @@ public class CityServiceImplTest {
 	@Test
 	public void shouldReturnCityWhengGetCityByCityCodeMethodIsCalledWithExistingCity() {
 		when(cityRepositoryMock.findByCityCodeAndStateCodeAndCountryCode(cityCode, stateCode, countryCode))
-				.thenReturn(city);
+				.thenReturn(optionalCity);
 
 		City returnedCity = cityService.getCityByCityCode(cityCode, stateCode, countryCode);
 
@@ -116,7 +123,7 @@ public class CityServiceImplTest {
 	public void shouldReturnCityExceptionWhengGetCityByCityCodeMethodIsCalledWithUnexistingCity() {
 		String unexistingCityCode = "CCC";
 		when(cityRepositoryMock.findByCityCodeAndStateCodeAndCountryCode(unexistingCityCode, stateCode, countryCode))
-				.thenReturn(null);
+				.thenReturn(Optional.ofNullable(null));
 
 		thrown.expect(EntityNotFoundException.class);
 		thrown.expectMessage(String.format("City not found with CityCode : '%s'", unexistingCityCode));
@@ -127,61 +134,67 @@ public class CityServiceImplTest {
 	public void shouldReturnCityListWhenGetAllCitiesByStateCodeAndCountryCodeMethodIsCalledWithExistingStateAndCountry() {
 		List<City> list = new ArrayList<>();
 		list.add(city);
-		when(cityRepositoryMock.findAllByStateCodeCountryCode(stateCode, countryCode)).thenReturn(list);
-		
+		Optional<List<City>> optionalList = Optional.of(list);
+		when(cityRepositoryMock.findAllByStateCodeCountryCode(stateCode, countryCode)).thenReturn(optionalList);
+
 		List<City> returnedList = cityService.getAllCitiesByStateCodeAndCountryCode(stateCode, countryCode);
-		
+
 		assertEquals(list, returnedList);
 	}
-	
+
 	@Test
 	public void shouldReturnStateExceptionWhenGetAllCitiesByStateCodeAndCountryCodeMethodIsCalledWithUnexistingStateAndCountry() {
 		String unexistingStateCode = "BB";
-		when(cityRepositoryMock.findAllByStateCodeCountryCode(unexistingStateCode, countryCode)).thenReturn(null);
-		
+		when(cityRepositoryMock.findAllByStateCodeCountryCode(unexistingStateCode, countryCode))
+				.thenReturn(Optional.ofNullable(null));
+
 		thrown.expect(EntityNotFoundException.class);
 		thrown.expectMessage(String.format("State not found with StateCode : '%s'", unexistingStateCode));
 		cityService.getAllCitiesByStateCodeAndCountryCode(unexistingStateCode, countryCode);
 	}
-	
+
 	@Test
-	public void shouldReturnUpdatedCityWhenUpdateCityMethodIsCalledWithExistingCityAndStateAndCountry(){
+	public void shouldReturnUpdatedCityWhenUpdateCityMethodIsCalledWithExistingCityAndStateAndCountry() {
 		City updatedCity = new City();
 		updatedCity.setName("São Paulo");
 		updatedCity.setCityCode("SPO");
 		updatedCity.setState(city.getState());
-		when(cityRepositoryMock.findByCityCodeAndStateCodeAndCountryCode(cityCode, stateCode, countryCode)).thenReturn(city);
+		when(cityRepositoryMock.findByCityCodeAndStateCodeAndCountryCode(cityCode, stateCode, countryCode))
+				.thenReturn(optionalCity);
 		when(cityRepositoryMock.save(updatedCity)).thenReturn(updatedCity);
-		
+
 		City returnedCity = cityService.updateCity(updatedCity, cityCode, stateCode, countryCode);
-		
+
 		assertEquals(updatedCity, returnedCity);
 	}
-	
+
 	@Test
-	public void shouldReturnCityExceptionWhenUpdateCityMethodIsCalledWithUnexistingCityAndStateAndCountry(){
+	public void shouldReturnCityExceptionWhenUpdateCityMethodIsCalledWithUnexistingCityAndStateAndCountry() {
 		String unexistingCityCode = "CCC";
 		City updatedCity = new City();
-		when(cityRepositoryMock.findByCityCodeAndStateCodeAndCountryCode(unexistingCityCode, stateCode, countryCode)).thenReturn(null);
-		
+		when(cityRepositoryMock.findByCityCodeAndStateCodeAndCountryCode(unexistingCityCode, stateCode, countryCode))
+				.thenReturn(Optional.ofNullable(null));
+
 		thrown.expect(EntityNotFoundException.class);
 		thrown.expectMessage(String.format("City not found with CityCode : '%s'", unexistingCityCode));
 		cityService.updateCity(updatedCity, unexistingCityCode, stateCode, countryCode);
 	}
-	
+
 	@Test
 	public void shouldCallRepositoryDeletMethodWhenDeleteMethodIsCalledWithExistingCity() {
-		when(cityRepositoryMock.findByCityCodeAndStateCodeAndCountryCode(cityCode, stateCode, countryCode)).thenReturn(city);
-		
+		when(cityRepositoryMock.findByCityCodeAndStateCodeAndCountryCode(cityCode, stateCode, countryCode))
+				.thenReturn(optionalCity);
+
 		cityService.deleteCity(cityCode, stateCode, countryCode);
-		
+
 		verify(cityRepositoryMock, times(1)).delete(city);
 	}
-	
+
 	@Test
-	public void shouldReturnCityExceptionWhenDeleteCityMethodIsCalledWithUnexistingCityAndStateAndCountry(){
+	public void shouldReturnCityExceptionWhenDeleteCityMethodIsCalledWithUnexistingCityAndStateAndCountry() {
 		String unexistingCityCode = "CCC";
-		when(cityRepositoryMock.findByCityCodeAndStateCodeAndCountryCode(unexistingCityCode, unexistingCityCode, unexistingCityCode)).thenReturn(null);
+		when(cityRepositoryMock.findByCityCodeAndStateCodeAndCountryCode(unexistingCityCode, stateCode, countryCode))
+				.thenReturn(Optional.ofNullable(null));
 
 		thrown.expect(EntityNotFoundException.class);
 		thrown.expectMessage(String.format("City not found with CityCode : '%s'", unexistingCityCode));
