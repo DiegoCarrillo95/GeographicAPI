@@ -9,6 +9,9 @@ import com.diego.geographicapi.model.State;
 
 public class Transformer {
 	public static CountryDto countryModelToDtoTransformer(Country countryModel) {
+		if(countryModel == null) {
+			return null;
+		}
 		CountryDto countryDto = new CountryDto();
 		countryDto.setId(countryModel.getId());
 		countryDto.setName(countryModel.getName());
@@ -20,6 +23,9 @@ public class Transformer {
 	}
 
 	public static Country countryDtoToModelTransformer(CountryDto countryDto) {
+		if(countryDto == null) {
+			return null;
+		}
 		Country countryModel = new Country();
 		countryModel.setId(countryDto.getId());
 		countryModel.setName(countryDto.getName());
@@ -31,6 +37,9 @@ public class Transformer {
 	}
 	
 	public static StateDto stateModelToDtoTransformer(State stateModel) {
+		if(stateModel == null) {
+			return null;
+		}
 		StateDto stateDto = new StateDto();
 		stateDto.setId(stateModel.getId());
 		stateDto.setName(stateModel.getName());
@@ -42,6 +51,9 @@ public class Transformer {
 	}
 	
 	public static State stateDtoToModelTransformer(StateDto stateDto) {
+		if(stateDto == null) {
+			return null;
+		}
 		State stateModel = new State();
 		stateModel.setId(stateDto.getId());
 		stateModel.setName(stateDto.getName());
@@ -53,6 +65,9 @@ public class Transformer {
 	}
 	
 	public static CityDto cityModelToDtoTransformer(City cityModel){
+		if(cityModel == null) {
+			return null;
+		}
 		CityDto cityDto = new CityDto();
 		cityDto.setId(cityModel.getId());
 		cityDto.setName(cityModel.getName());
@@ -61,6 +76,9 @@ public class Transformer {
 	}
 	
 	public static City cityDtoToModelTransformer(CityDto cityDto) {
+		if(cityDto == null) {
+			return null;
+		}
 		City cityModel = new City();
 		cityModel.setId(cityDto.getId());
 		cityModel.setName(cityDto.getName());
