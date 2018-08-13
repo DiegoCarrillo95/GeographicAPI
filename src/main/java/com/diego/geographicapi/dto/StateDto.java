@@ -14,6 +14,7 @@ import lombok.Setter;
 @EqualsAndHashCode
 public class StateDto {
 
+	@EqualsAndHashCode.Exclude
 	private Long id;
 	
 	@Size(min = 3, message = "Name should have at least 3 and less than 100 characters")
