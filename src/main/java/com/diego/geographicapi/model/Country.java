@@ -6,6 +6,7 @@ import java.util.List;
 import javax.persistence.CascadeType;
 import javax.persistence.Column;
 import javax.persistence.Entity;
+import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
@@ -41,7 +42,7 @@ public class Country {
 	@Size(min = 2, max = 2, message = "Country code should have 2 characters")
 	private String countryCode;
 	
-	@OneToMany(cascade = CascadeType.ALL, mappedBy = "country")
+	@OneToMany(fetch = FetchType.EAGER, cascade = CascadeType.ALL, mappedBy = "country")
 	@EqualsAndHashCode.Exclude
 	private List<State> states = new ArrayList<>();
 	
