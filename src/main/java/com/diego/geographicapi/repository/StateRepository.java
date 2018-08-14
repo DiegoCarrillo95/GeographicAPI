@@ -14,9 +14,9 @@ import com.diego.geographicapi.model.State;
 @Repository
 public interface StateRepository extends JpaRepository<State, Long> {
 	
-	@Query("select s from State s where s.stateCode = :stateCode and s.country.countryCode = :countryCode")
+	@Query("select state from State state where state.stateCode = :stateCode and state.country.countryCode = :countryCode")
 	Optional<State> findByStateCodeAndCountryCode(@Param("stateCode") String stateCode, @Param("countryCode") String countryCode);
 	
-	@Query("select s from State s where s.country.countryCode = :countryCode")
+	@Query("select state from State state where state.country.countryCode = :countryCode")
 	Optional<List<State>> findAllByCountryCode(@Param("countryCode") String countryCode);
 }
