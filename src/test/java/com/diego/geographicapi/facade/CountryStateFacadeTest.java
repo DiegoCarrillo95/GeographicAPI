@@ -21,6 +21,7 @@ import org.mockito.runners.MockitoJUnitRunner;
 import com.diego.geographicapi.dto.StateDto;
 import com.diego.geographicapi.exceptions.EntityNotFoundException;
 import com.diego.geographicapi.exceptions.ResourceNotFoundException;
+import com.diego.geographicapi.facade.implementation.StateFacadeImpl;
 import com.diego.geographicapi.model.State;
 import com.diego.geographicapi.service.StateService;
 
@@ -31,7 +32,7 @@ public class CountryStateFacadeTest {
 	private StateService stateService;
 
 	@InjectMocks
-	private CountryStateFacade countryStateFacade;
+	private StateFacadeImpl countryStateFacade;
 
 	@Rule
 	public ExpectedException thrown = ExpectedException.none();

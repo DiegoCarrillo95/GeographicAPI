@@ -14,23 +14,23 @@ import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 
 import com.diego.geographicapi.dto.CountryDto;
-import com.diego.geographicapi.facade.CountryFacade;
+import com.diego.geographicapi.facade.implementation.CountryFacadeImpl;
 
 @RunWith(MockitoJUnitRunner.class)
 public class CountryControllerTest {
 
 	@InjectMocks
-	CountryController countryController;
+	private CountryController countryController;
 	
 	@Mock
-	private CountryFacade countryFacade;
+	private CountryFacadeImpl countryFacade;
 	
-	final long id1 = 1;
-	final long id2 = 2;
+	private final long id1 = 1;
+	private final long id2 = 2;
 
-	CountryDto countryDto1 = new CountryDto();
-	CountryDto countryDto2 = new CountryDto();
-	List<CountryDto> countryDtoList = new ArrayList<>();
+	private CountryDto countryDto1 = new CountryDto();
+	private CountryDto countryDto2 = new CountryDto();
+	private List<CountryDto> countryDtoList = new ArrayList<>();
 
 	@Before
 	public void init() {

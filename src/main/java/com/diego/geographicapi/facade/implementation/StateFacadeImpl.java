@@ -1,4 +1,4 @@
-package com.diego.geographicapi.facade;
+package com.diego.geographicapi.facade.implementation;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -8,16 +8,17 @@ import org.springframework.stereotype.Component;
 import com.diego.geographicapi.dto.StateDto;
 import com.diego.geographicapi.exceptions.EntityNotFoundException;
 import com.diego.geographicapi.exceptions.ResourceNotFoundException;
+import com.diego.geographicapi.facade.StateFacade;
 import com.diego.geographicapi.model.State;
 import com.diego.geographicapi.service.StateService;
 import com.diego.geographicapi.util.Transformer;
 
 @Component
-public class CountryStateFacade {
+public class StateFacadeImpl implements StateFacade{
 
 	private final StateService stateService;
 
-	public CountryStateFacade(StateService stateService) {
+	public StateFacadeImpl(StateService stateService) {
 		this.stateService = stateService;
 	}
 
@@ -26,6 +27,7 @@ public class CountryStateFacade {
 				stateService.insertState(Transformer.stateDtoToModelTransformer(stateDto), countryCode));
 	}
 
+	@Override
 	public List<StateDto> getAllStates(String countryCode) {
 		try {
 			List<State> stateModelList = stateService.getAllStatesByCountryCode(countryCode);
@@ -41,6 +43,7 @@ public class CountryStateFacade {
 		}
 	}
 
+	@Override
 	public StateDto getState(String stateCode, String countryCode) {
 		try {
 			return Transformer.stateModelToDtoTransformer(stateService.getStateByStateCode(stateCode, countryCode));
@@ -49,6 +52,7 @@ public class CountryStateFacade {
 		}
 	}
 
+	@Override
 	public StateDto updateState (StateDto stateDto, String stateCode, String countryCode) {
 		try {
 			return Transformer.stateModelToDtoTransformer(stateService.updateState(Transformer.stateDtoToModelTransformer(stateDto), stateCode, countryCode));
@@ -57,6 +61,7 @@ public class CountryStateFacade {
 		}
 	}
 
+	@Override
 	public void deleteState(String stateCode, String countryCode) {
 		try {
 			stateService.deleteState(stateCode, countryCode);
