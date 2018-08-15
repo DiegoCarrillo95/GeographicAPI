@@ -47,8 +47,7 @@ public class StateServiceImpl implements StateService {
 
 	@Override
 	public State updateState(State updatedState, String stateCode, String countryCode) {
-		State currentState = stateRepository.findByStateCodeAndCountryCode(stateCode, countryCode)
-				.orElseThrow(() -> new EntityNotFoundException("State", "StateCode", stateCode));
+		State currentState = getStateByStateCode(stateCode, countryCode);
 
 		BeanUtils.copyProperties(updatedState, currentState, "id", "country", "cities");
 
@@ -57,8 +56,7 @@ public class StateServiceImpl implements StateService {
 
 	@Override
 	public void deleteState(String stateCode, String countryCode) {
-		stateRepository.delete(stateRepository.findByStateCodeAndCountryCode(stateCode, countryCode)
-				.orElseThrow(() -> new EntityNotFoundException("State", "StateCode", stateCode)));
+		stateRepository.delete(getStateByStateCode(stateCode, countryCode));
 	}
 
 }

@@ -37,8 +37,7 @@ public class CountryServiceImpl implements CountryService {
 
 	@Override
 	public Country updateCountry(String countryCode, Country updatedCountry) {
-		Country currentCountry = countryRepository.findByCountryCode(countryCode)
-				.orElseThrow(() -> new EntityNotFoundException("Country", "CountryCode", countryCode));
+		Country currentCountry = getCountryByCountryCode(countryCode);
 
 		BeanUtils.copyProperties(updatedCountry, currentCountry, "id", "states");
 
@@ -47,8 +46,7 @@ public class CountryServiceImpl implements CountryService {
 
 	@Override
 	public void deleteCountry(String countryCode) {
-		countryRepository.delete(countryRepository.findByCountryCode(countryCode)
-				.orElseThrow(() -> new EntityNotFoundException("Country", "CountryCode", countryCode)));
+		countryRepository.delete(getCountryByCountryCode(countryCode));
 	}
 
 }

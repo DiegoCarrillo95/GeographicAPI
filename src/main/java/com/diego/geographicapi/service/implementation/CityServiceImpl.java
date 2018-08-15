@@ -48,8 +48,7 @@ public class CityServiceImpl implements CityService {
 
 	@Override
 	public City updateCity(City updatedCity, String cityCode, String stateCode, String countryCode) {
-		City currentCity = cityRepository.findByCityCodeAndStateCodeAndCountryCode(cityCode, stateCode, countryCode)
-				.orElseThrow(() -> new EntityNotFoundException("City", "CityCode", cityCode));
+		City currentCity = getCityByCityCode(cityCode, stateCode, countryCode);
 
 		BeanUtils.copyProperties(updatedCity, currentCity, "id", "state");
 
@@ -58,7 +57,6 @@ public class CityServiceImpl implements CityService {
 
 	@Override
 	public void deleteCity(String cityCode, String stateCode, String countryCode) {
-		cityRepository.delete(cityRepository.findByCityCodeAndStateCodeAndCountryCode(cityCode, stateCode, countryCode)
-				.orElseThrow(() -> new EntityNotFoundException("City", "CityCode", cityCode)));
+		cityRepository.delete(getCityByCityCode(cityCode, stateCode, countryCode));
 	}
 }
