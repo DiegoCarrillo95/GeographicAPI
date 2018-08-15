@@ -82,6 +82,8 @@ public class CityServiceImplTest {
 
 		state.addCity(city);
 		optionalCity = Optional.of(city);
+		
+		
 	}
 
 	@Test
