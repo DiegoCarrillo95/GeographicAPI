@@ -11,20 +11,22 @@ import com.diego.geographicapi.exceptions.ResourceNotFoundException;
 import com.diego.geographicapi.facade.StateFacade;
 import com.diego.geographicapi.model.State;
 import com.diego.geographicapi.service.StateService;
-import com.diego.geographicapi.util.Transformer;
+import com.diego.geographicapi.util.StateDtoModelTransformer;
 
 @Component
-public class StateFacadeImpl implements StateFacade{
+public class StateFacadeImpl implements StateFacade {
 
-	private final StateService stateService;
+	private StateService stateService;
+	private StateDtoModelTransformer stateDtoModelTransformer;
 
-	public StateFacadeImpl(StateService stateService) {
+	public StateFacadeImpl(StateService stateService, StateDtoModelTransformer stateDtoModelTransformer) {
 		this.stateService = stateService;
+		this.stateDtoModelTransformer = stateDtoModelTransformer;
 	}
 
 	public StateDto insertState(StateDto stateDto, String countryCode) {
-		return Transformer.stateModelToDtoTransformer(
-				stateService.insertState(Transformer.stateDtoToModelTransformer(stateDto), countryCode));
+		return stateDtoModelTransformer.transformToDto(
+				stateService.insertState(stateDtoModelTransformer.transformToModel(stateDto), countryCode));
 	}
 
 	@Override
@@ -34,7 +36,7 @@ public class StateFacadeImpl implements StateFacade{
 			List<StateDto> stateDtoList = new ArrayList<>();
 
 			for (State state : stateModelList) {
-				stateDtoList.add(Transformer.stateModelToDtoTransformer(state));
+				stateDtoList.add(stateDtoModelTransformer.transformToDto(state));
 			}
 
 			return stateDtoList;
@@ -46,16 +48,17 @@ public class StateFacadeImpl implements StateFacade{
 	@Override
 	public StateDto getState(String stateCode, String countryCode) {
 		try {
-			return Transformer.stateModelToDtoTransformer(stateService.getStateByStateCode(stateCode, countryCode));
+			return stateDtoModelTransformer.transformToDto(stateService.getStateByStateCode(stateCode, countryCode));
 		} catch (EntityNotFoundException e) {
 			throw new ResourceNotFoundException(e.getResourceName(), e.getFieldName(), e.getFieldValue());
 		}
 	}
 
 	@Override
-	public StateDto updateState (StateDto stateDto, String stateCode, String countryCode) {
+	public StateDto updateState(StateDto stateDto, String stateCode, String countryCode) {
 		try {
-			return Transformer.stateModelToDtoTransformer(stateService.updateState(Transformer.stateDtoToModelTransformer(stateDto), stateCode, countryCode));
+			return stateDtoModelTransformer.transformToDto(stateService
+					.updateState(stateDtoModelTransformer.transformToModel(stateDto), stateCode, countryCode));
 		} catch (EntityNotFoundException e) {
 			throw new ResourceNotFoundException(e.getResourceName(), e.getFieldName(), e.getFieldValue());
 		}

@@ -11,20 +11,23 @@ import com.diego.geographicapi.exceptions.ResourceNotFoundException;
 import com.diego.geographicapi.facade.CityFacade;
 import com.diego.geographicapi.model.City;
 import com.diego.geographicapi.service.CityService;
-import com.diego.geographicapi.util.Transformer;
+import com.diego.geographicapi.util.CityDtoModelTransformer;
 
 @Component
-public class CityFacadeImpl implements CityFacade{
-	private final CityService cityService;
+public class CityFacadeImpl implements CityFacade {
 
-	public CityFacadeImpl(CityService cityService) {
+	private CityService cityService;
+	private CityDtoModelTransformer cityDtoModelTransformer;
+
+	public CityFacadeImpl(CityService cityService, CityDtoModelTransformer cityDtoModelTransformer) {
 		this.cityService = cityService;
+		this.cityDtoModelTransformer = cityDtoModelTransformer;
 	}
 
 	@Override
 	public CityDto insertCity(CityDto cityDto, String stateCode, String countryCode) {
-		return Transformer.cityModelToDtoTransformer(
-				cityService.insertCity(Transformer.cityDtoToModelTransformer(cityDto), stateCode, countryCode));
+		return cityDtoModelTransformer.transformToDto(
+				cityService.insertCity(cityDtoModelTransformer.transformToModel(cityDto), stateCode, countryCode));
 	}
 
 	@Override
@@ -34,7 +37,7 @@ public class CityFacadeImpl implements CityFacade{
 			List<CityDto> cityDtoList = new ArrayList<>();
 
 			for (City city : cityModelList) {
-				cityDtoList.add(Transformer.cityModelToDtoTransformer(city));
+				cityDtoList.add(cityDtoModelTransformer.transformToDto(city));
 			}
 
 			return cityDtoList;
@@ -46,8 +49,8 @@ public class CityFacadeImpl implements CityFacade{
 	@Override
 	public CityDto getCity(String cityCode, String stateCode, String countryCode) {
 		try {
-			return Transformer
-					.cityModelToDtoTransformer(cityService.getCityByCityCode(cityCode, stateCode, countryCode));
+			return cityDtoModelTransformer
+					.transformToDto(cityService.getCityByCityCode(cityCode, stateCode, countryCode));
 		} catch (EntityNotFoundException e) {
 			throw new ResourceNotFoundException(e.getResourceName(), e.getFieldName(), e.getFieldValue());
 		}
@@ -56,8 +59,8 @@ public class CityFacadeImpl implements CityFacade{
 	@Override
 	public CityDto updateCity(CityDto cityDto, String cityCode, String stateCode, String countryCode) {
 		try {
-			return Transformer.cityModelToDtoTransformer(cityService
-					.updateCity(Transformer.cityDtoToModelTransformer(cityDto), cityCode, stateCode, countryCode));
+			return cityDtoModelTransformer.transformToDto((cityService
+					.updateCity(cityDtoModelTransformer.transformToModel(cityDto), cityCode, stateCode, countryCode)));
 		} catch (EntityNotFoundException e) {
 			throw new ResourceNotFoundException(e.getResourceName(), e.getFieldName(), e.getFieldValue());
 		}

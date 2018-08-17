@@ -11,21 +11,23 @@ import com.diego.geographicapi.exceptions.ResourceNotFoundException;
 import com.diego.geographicapi.facade.CountryFacade;
 import com.diego.geographicapi.model.Country;
 import com.diego.geographicapi.service.CountryService;
-import com.diego.geographicapi.util.Transformer;
+import com.diego.geographicapi.util.CountryDtoModelTransformer;
 
 @Component
-public class CountryFacadeImpl implements CountryFacade{
+public class CountryFacadeImpl implements CountryFacade {
 
-	private final CountryService countryService;
+	private CountryService countryService;
+	private CountryDtoModelTransformer countryDtoModelTransformer;
 
-	public CountryFacadeImpl(CountryService countryService) {
+	public CountryFacadeImpl(CountryService countryService, CountryDtoModelTransformer countryDtoModelTransformer) {
 		this.countryService = countryService;
+		this.countryDtoModelTransformer = countryDtoModelTransformer;
 	}
-	
+
 	@Override
 	public CountryDto insertCountry(CountryDto countryDto) {
-		return Transformer.countryModelToDtoTransformer(
-				countryService.insertCountry(Transformer.countryDtoToModelTransformer(countryDto)));
+		return countryDtoModelTransformer
+				.transformToDto(countryService.insertCountry(countryDtoModelTransformer.transformToModel(countryDto)));
 	}
 
 	@Override
@@ -33,7 +35,7 @@ public class CountryFacadeImpl implements CountryFacade{
 		List<CountryDto> countryDtos = new ArrayList<>();
 
 		for (Country country : countryService.getAllCountries()) {
-			countryDtos.add(Transformer.countryModelToDtoTransformer(country));
+			countryDtos.add(countryDtoModelTransformer.transformToDto(country));
 		}
 
 		return countryDtos;
@@ -42,7 +44,7 @@ public class CountryFacadeImpl implements CountryFacade{
 	@Override
 	public CountryDto getCountry(String countryCode) {
 		try {
-			return Transformer.countryModelToDtoTransformer(countryService.getCountryByCountryCode(countryCode));
+			return countryDtoModelTransformer.transformToDto(countryService.getCountryByCountryCode(countryCode));
 
 		} catch (EntityNotFoundException e) {
 			throw new ResourceNotFoundException(e.getResourceName(), e.getFieldName(), e.getFieldValue());
@@ -52,8 +54,8 @@ public class CountryFacadeImpl implements CountryFacade{
 	@Override
 	public CountryDto updateCountry(String countryCode, CountryDto countryDto) {
 		try {
-			return Transformer.countryModelToDtoTransformer(
-					countryService.updateCountry(countryCode, Transformer.countryDtoToModelTransformer(countryDto)));
+			return countryDtoModelTransformer.transformToDto(
+					countryService.updateCountry(countryCode, countryDtoModelTransformer.transformToModel(countryDto)));
 		} catch (EntityNotFoundException e) {
 			throw new ResourceNotFoundException(e.getResourceName(), e.getFieldName(), e.getFieldValue());
 		}

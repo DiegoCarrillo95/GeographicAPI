@@ -24,6 +24,7 @@ import com.diego.geographicapi.exceptions.ResourceNotFoundException;
 import com.diego.geographicapi.facade.implementation.StateFacadeImpl;
 import com.diego.geographicapi.model.State;
 import com.diego.geographicapi.service.StateService;
+import com.diego.geographicapi.util.StateDtoModelTransformer;
 
 @RunWith(MockitoJUnitRunner.class)
 public class CountryStateFacadeTest {
@@ -31,6 +32,9 @@ public class CountryStateFacadeTest {
 	@Mock
 	private StateService stateService;
 
+	@Mock
+	private StateDtoModelTransformer stateDtoModelTransformer;
+	
 	@InjectMocks
 	private StateFacadeImpl countryStateFacade;
 
@@ -50,7 +54,7 @@ public class CountryStateFacadeTest {
 	private State state = new State();
 
 	@Before
-	public void init() {
+	public void setUp() {
 
 		stateDto.setId(stateId);
 		stateDto.setName(stateName);
@@ -59,6 +63,9 @@ public class CountryStateFacadeTest {
 		state.setId(stateId);
 		state.setName(stateName);
 		state.setStateCode(stateCode);
+		
+		when(stateDtoModelTransformer.transformToDto(state)).thenReturn(stateDto);
+		when(stateDtoModelTransformer.transformToModel(stateDto)).thenReturn(state);
 	}
 
 	@Test

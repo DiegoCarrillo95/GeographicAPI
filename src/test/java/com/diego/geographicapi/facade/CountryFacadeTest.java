@@ -1,11 +1,10 @@
 package com.diego.geographicapi.facade;
 
 import static org.junit.Assert.assertEquals;
-import static org.mockito.Mockito.times;
-import static org.mockito.Mockito.when;
 import static org.mockito.Mockito.doThrow;
+import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
-
+import static org.mockito.Mockito.when;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -25,6 +24,7 @@ import com.diego.geographicapi.exceptions.ResourceNotFoundException;
 import com.diego.geographicapi.facade.implementation.CountryFacadeImpl;
 import com.diego.geographicapi.model.Country;
 import com.diego.geographicapi.service.CountryService;
+import com.diego.geographicapi.util.CountryDtoModelTransformer;
 
 @RunWith(MockitoJUnitRunner.class)
 public class CountryFacadeTest {
@@ -34,6 +34,9 @@ public class CountryFacadeTest {
 
 	@Mock
 	private CountryService countryService;
+	
+	@Mock
+	private CountryDtoModelTransformer countryDtoModelTransformer;
 
 	private Country country = new Country();
 
@@ -51,7 +54,7 @@ public class CountryFacadeTest {
 	public ExpectedException thrown = ExpectedException.none();
 
 	@Before
-	public void setup() {
+	public void setUp() {
 		country.setId(countryId);
 		country.setName(countryName);
 		country.setCountryCode(countryCode);
@@ -59,6 +62,9 @@ public class CountryFacadeTest {
 		countryDto.setId(countryId);
 		countryDto.setName(countryName);
 		countryDto.setCountryCode(countryCode);
+		
+		when(countryDtoModelTransformer.transformToDto(country)).thenReturn(countryDto);
+		when(countryDtoModelTransformer.transformToModel(countryDto)).thenReturn(country);
 	}
 
 	@Test
