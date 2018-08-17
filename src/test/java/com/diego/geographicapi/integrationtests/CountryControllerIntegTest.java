@@ -3,8 +3,6 @@ package com.diego.geographicapi.integrationtests;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 
-import java.util.List;
-
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -132,7 +130,7 @@ public class CountryControllerIntegTest {
 		assertEquals(HttpStatus.OK, response.getStatusCode());
 		assertFalse(countryRepository.findByCountryCode(countryCode).isPresent());
 	}
-
+	
 	private String createURIWithPort(String urn) {
 		return "http://localhost:" + port + urn;
 	}

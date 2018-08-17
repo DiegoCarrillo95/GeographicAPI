@@ -14,15 +14,15 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.diego.geographicapi.dto.StateDto;
-import com.diego.geographicapi.facade.CountryStateFacade;
+import com.diego.geographicapi.facade.StateFacade;
 
 @RestController
 @RequestMapping("/api/v1/country/{country_code}/state")
 public class CountryStateController {
 
-	private final CountryStateFacade countryStateFacade;
+	private final StateFacade countryStateFacade;
 
-	public CountryStateController(CountryStateFacade countryStateFacade) {
+	public CountryStateController(StateFacade countryStateFacade) {
 		this.countryStateFacade = countryStateFacade;
 	}
 
